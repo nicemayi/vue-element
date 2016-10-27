@@ -15,14 +15,11 @@
       <router-link to="/receive">
         <el-menu-item index="1">Receive Return Box</el-menu-item>
       </router-link>
-      <router-link to="/order">
-        <el-menu-item index="2">Order</el-menu-item>
-      </router-link>
       <router-link to="/shipping-pending">
-        <el-menu-item index="3">Shipping Status</el-menu-item>
+        <el-menu-item index="2">Shipping Status</el-menu-item>
       </router-link>
       <router-link to="/status">
-        <el-menu-item index="4">Client Inventory</el-menu-item>
+        <el-menu-item index="3">Client Inventory</el-menu-item>
       </router-link>
     </el-menu>
     <router-view></router-view>

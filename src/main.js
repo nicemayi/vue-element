@@ -9,9 +9,9 @@ import App from './App.vue'
 
 import ClientShippingPendingTable from './components/ClientShippingPendingTable.vue'
 import ClientInventoryTable from './components/ClientInventoryTable.vue'
-import Order from './components/Order.vue'
+import Receive from './components/Receive.vue'
 import ElementForm from './components/ElementForm.vue'
-import ElementTest from './components/ElementTest.vue'
+
 
 
 Vue.use(ElementUI)
@@ -19,8 +19,7 @@ Vue.use(Router);
 
 const router = new Router({
   routes: [
-    { path: '/receive', component: ElementForm },
-    { path: '/order', component: Order },
+    { path: '/receive', component: Receive },
     { path: '/shipping-pending', component: ClientShippingPendingTable },
     { path: '/status', component: ClientInventoryTable }
   ]
