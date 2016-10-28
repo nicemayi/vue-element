@@ -1,6 +1,11 @@
-<template>
-  <div>
+<style>
+  #main_div {
+    margin-top: 20px;
+  }
+</style>
 
+<template>
+  <div class="container" id="main_div">
   <el-tabs>
     <el-tab-pane label="Pending Order">
       <el-table

@@ -8,10 +8,13 @@
     padding-top: 20px;
     padding-bottom: 20px;
   }
+  #main_div {
+    margin-top: 20px;
+  }
 </style>
 
 <template>
-  <div>
+  <div class="container" id="main_div">
     <el-row :gutter="20">
       <el-col :span="6">
         <el-input id="search_client"
@@ -72,34 +75,90 @@
         sortable>
       </el-table-column>
     </el-table>
+    
+    <div class="container">
+      <el-dialog top= "5%" v-model="dialogFormVisible" size="small" :lock-scroll="true" :title="`Edit order for client: ${modal_client_id}`">
+        <el-tag type="success" size="large">{{modal_client_id}}</el-tag>
+        <el-tag type="warning">Vibanrt</el-tag>
+        <el-tag type="danger">123 main st, cupertino, CA</el-tag>
+        <el-form id="client_order_modal" ref="form" :model="form" label-width="200px" @submit.prevent="onSubmit" label-position="left" style="margin-top: 10px;">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="panel-group">
+                <div class="panel panel-primary">
+                  <div class="panel-heading" style="background: #4DB3FF">Tube Sets</div>
+                  <div class="panel-body">
+                    <el-form-item label="Serum tube only">
+                      <el-input-number v-model="form.client_tube_set_sst" size="large"></el-input-number>
+                    </el-form-item>
+                    <el-form-item label="Serun and EDTA tube">
+                      <el-input-number v-model="form.client_tube_set_sst_and_edta" size="large"></el-input-number>
+                    </el-form-item>
+                    <el-form-item label="Standard">
+                      <el-input-number v-model="form.client_tube_set_standard" size="large"></el-input-number>
+                    </el-form-item>
+                    <el-form-item label="All">
+                      <el-input-number v-model="form.client_tube_set_all" size="large"></el-input-number>
+                    </el-form-item>
+                  </div>
+                </div>
+                <div class="panel panel-primary">
+                  <div class="panel-heading" style="background: #4DB3FF">Box Sets</div>
+                  <div class="panel-body">
+                    <el-form-item label="Regular cooler">
+                      <el-input-number v-model="form.regular_cooler" size="large"></el-input-number>
+                    </el-form-item>
+                    <el-form-item label="Larger cooler">
+                      <el-input-number v-model="form.larger_cooler" size="large"></el-input-number>
+                    </el-form-item>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="panel-group">
+                <div class="panel panel-primary">
+                  <div class="panel-heading" style="background: #4DB3FF">Requisition Forms</div>
+                  <div class="panel-body">
+                    <el-select v-model="form.shipping_method" placeholder='Please choose shipping method'>
+                      <el-option
+                        v-for="item in options"
+                        :label="item.label"
+                        :value="item.value">
+                      </el-option>
+                    </el-select>
+                  </div>
+                </div>
+                <div class="panel panel-primary" style="margin-top:20px">
+                  <div class="panel-heading" style="background: #4DB3FF">Shipping Methods</div>
+                  <div class="panel-body">
+                    <el-input-number v-model="form.req_forms"></el-input-number>
+                  </div>
+                </div>
+                <div class="panel panel-primary" style="margin-top:20px">
+                  <div class="panel-heading" style="background: #4DB3FF">Comments</div>
+                  <div class="panel-body" style="padding: 0px 0px 0px 0px;">
+                    <el-input type="textarea" :rows="textAreaRows" v-model="form.comments"></el-input>
+                    </el-form-item>
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+        </el-form>
+        <hr/>
+        <span slot="footer" class="dialog-footer center" align="center">
+          <el-button @click.native="dialogFormVisible = false">Cancel</el-button>
+          <el-button id="submit_btn" :disable="ifValidOrder" @click.native.prevent="onSubmit" type="primary" @click.native="dialogFormVisible = false">Create</el-button>
+        </span>
+      </el-dialog>
+    </div>
+  </template>
+          <!-- <el-row type="flex" justify="center" align="middle"> -->
 
-    <el-dialog top= "5%" v-model="dialogFormVisible" size="small"><h1 align="center">{{modal_client_id}}</h1>
-      <el-form id="client_order_modal" ref="form" :model="form" label-width="0px" @submit.prevent="onSubmit">
-<!--       <el-form-item>
-        <div class="text">Client Internal Identify Number</div>
-        <el-input v-model="form.client_id"></el-input>
-      </el-form-item> -->
-<!--         <el-form-item>
-          <h2>Client Information</h2>
-          <el-row class="inline-input border-grid">
-            <el-col :span="8">
-              <el-tag type="primary">Client Internal Identify Number</el-tag>
-              <el-input v-model="form.client_id"></el-input>
-            </el-col>
-            <el-col :span="8">
-              <el-tag type="primary">Physician Name</el-tag>
-              <el-input v-model="form.physician_name"></el-input>
-            </el-col>
-            <el-col :span="8">
-              <el-tag type="primary">Client Name</el-tag>
-              <el-input v-model="form.client_name"></el-input>
-            </el-col>
-          </el-row>
-        </el-form-item>
- -->
 
-          <el-row type="flex" justify="center" align="middle">
-            <el-col :span="7">
+<!--             <el-col :span="7">
               <h4>Tube Sets</h4>
               <el-tag type="gray">Serum tube only</el-tag>
               <el-input-number v-model="form.client_tube_set_sst"></el-input-number>
@@ -109,9 +168,9 @@
               <el-input-number v-model="form.client_tube_set_standard"></el-input-number>
               <el-tag type="gray">All</el-tag>
               <el-input-number v-model="form.client_tube_set_all"></el-input-number>
-            </el-col>
+            </el-col> -->
 
-            <el-col :span="7">
+<!--             <el-col :span="7">
               <h4>Box Sets</h4>
               <el-tag type="success">Regular cooler</el-tag>
               <el-input-number v-model="form.regular_cooler"></el-input-number>
@@ -142,10 +201,9 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click.native="dialogFormVisible = false">Cancel</el-button>
         <el-button id="submit_btn" :disable="ifValidOrder" @click.native.prevent="onSubmit" type="primary" @click.native="dialogFormVisible = false">Create</el-button>
-      </span>
-    </el-dialog>
-  </div>
-</template>
+      </span> -->
+
+
 
 <script>
   export default {
@@ -174,7 +232,7 @@
     },
     data() {
       return {
-        textAreaRows: 4,
+        textAreaRows: 11,
         modal_client_id: '12',
         options: [{
           value: 'ground',
