@@ -3,18 +3,23 @@
     /*margin-top: 100;*/
     /*padding-top: 100;*/
   }
-/*  #tube_sets_modal {
-    margin-top:0;
-    padding-top:0;
-  }*/
+  #search_client {
+    /*margin-bottom: 100px;*/
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
 </style>
 
 <template>
   <div>
-    <el-input
-      placeholder="Type in the client name you are looking for..."
-      v-model="searchText">
-    </el-input>
+    <el-row :gutter="20">
+      <el-col :span="6">
+        <el-input id="search_client"
+          placeholder="Type in the client name you are looking for..."
+          v-model="searchText">
+        </el-input>
+      </el-col>
+    </el-row>
 
     <el-table
       :data="filteredTableData"
@@ -68,7 +73,7 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog top= "5%" v-model="dialogFormVisible" size="large"><h1 align="center">{{modal_client_id}}</h1>
+    <el-dialog top= "5%" v-model="dialogFormVisible" size="small"><h1 align="center">{{modal_client_id}}</h1>
       <el-form id="client_order_modal" ref="form" :model="form" label-width="0px" @submit.prevent="onSubmit">
 <!--       <el-form-item>
         <div class="text">Client Internal Identify Number</div>
@@ -93,7 +98,7 @@
         </el-form-item>
  -->
 
-          <el-row type="flex" class="row-bg" justify="center">
+          <el-row type="flex" justify="center" align="middle">
             <el-col :span="7">
               <h4>Tube Sets</h4>
               <el-tag type="gray">Serum tube only</el-tag>
@@ -129,7 +134,7 @@
               </el-select>
               <h4>Comments</h4>
               <el-tag type="success">Regular cooler</el-tag>
-              <el-input type="textarea" rows="4" v-model="form.comments"></el-input>
+              <el-input type="textarea" :rows="textAreaRows" v-model="form.comments"></el-input>
             </el-col>
 
         </el-form-item>
@@ -169,6 +174,7 @@
     },
     data() {
       return {
+        textAreaRows: 4,
         modal_client_id: '12',
         options: [{
           value: 'ground',

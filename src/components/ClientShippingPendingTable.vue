@@ -8,20 +8,59 @@
         border
         style="width: 100%">
         <el-table-column
-          property="date"
-          label="日期"
+          property="po_number"
+          label="PO Number"
           sortable
           width="180">
         </el-table-column>
         <el-table-column
-          property="name"
-          label="姓名"
+          property="client_id"
+          label="Client ID"
           width="180">
         </el-table-column>
         <el-table-column
-          property="address"
-          label="地址"
-          :formatter="formatter">
+          property="created_time"
+          label="Created Time">
+        </el-table-column>
+        <el-table-column
+          property="created_by"
+          label="Created By">
+        </el-table-column>
+        <el-table-column
+          property="SST"
+          label="SST">
+        </el-table-column>
+        <el-table-column
+          property="EDTA"
+          label="EDTA">
+        </el-table-column>
+        <el-table-column
+          property="Plasma"
+          label="Plasma">
+        </el-table-column>
+        <el-table-column
+          property="Urine"
+          label="Urine">
+        </el-table-column>
+        <el-table-column
+          property="ESR"
+          label="ESR">
+        </el-table-column>
+        <el-table-column
+          property="regular_box"
+          label="Regular Box">
+        </el-table-column>
+        <el-table-column
+          property="big_box"
+          label="Big Box">
+        </el-table-column>
+        <el-table-column
+          property="req"
+          label="Requisition Form">
+        </el-table-column>
+        <el-table-column
+          property="shipping_method"
+          label="Shipping Method">
         </el-table-column>
       </el-table>
     </el-tab-pane>
@@ -32,20 +71,59 @@
         border
         style="width: 100%">
         <el-table-column
-          property="date"
-          label="日期"
+          property="po_number"
+          label="PO Number"
           sortable
           width="180">
         </el-table-column>
         <el-table-column
-          property="name"
-          label="姓名"
+          property="client_id"
+          label="Client ID"
           width="180">
         </el-table-column>
         <el-table-column
-          property="address"
-          label="地址"
-          :formatter="formatter">
+          property="created_time"
+          label="Created Time">
+        </el-table-column>
+        <el-table-column
+          property="created_by"
+          label="Created By">
+        </el-table-column>
+        <el-table-column
+          property="SST"
+          label="SST">
+        </el-table-column>
+        <el-table-column
+          property="EDTA"
+          label="EDTA">
+        </el-table-column>
+        <el-table-column
+          property="Plasma"
+          label="Plasma">
+        </el-table-column>
+        <el-table-column
+          property="Urine"
+          label="Urine">
+        </el-table-column>
+        <el-table-column
+          property="ESR"
+          label="ESR">
+        </el-table-column>
+        <el-table-column
+          property="regular_box"
+          label="Regular Box">
+        </el-table-column>
+        <el-table-column
+          property="big_box"
+          label="Big Box">
+        </el-table-column>
+        <el-table-column
+          property="req"
+          label="Requisition Form">
+        </el-table-column>
+        <el-table-column
+          property="shipping_method"
+          label="Shipping Method">
         </el-table-column>
       </el-table>
 
@@ -60,40 +138,152 @@
   export default {
     data() {
       return {
-        tableData: [{
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1517 弄'
-        }, {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1519 弄'
-        }, {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1516 弄'
-        }],
-        tableData3: [{
-          date: '2016-05-02',
-          name: '王小虎111',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-04',
-          name: '王小虎111',
-          address: '上海市普陀区金沙江路 1517 弄'
-        }, {
-          date: '2016-05-01',
-          name: '111王小虎',
-          address: '上海市普陀区金沙江路 1519 弄'
-        }, {
-          date: '2016-05-03',
-          name: '111王小虎',
-          address: '上海市普陀区金沙江路 1516 弄'
-        }],
+        tableData: [
+          {
+            po_number: '123454',
+            client_id: '1003',
+            created_time: '2016-10-21 18:30:00',
+            created_by: 'zhe',
+            EDTA: 0,
+            SST: 1,
+            Plasma: 2,
+            Urine: 3,
+            ESR: 4,
+            regular_box: 100,
+            big_box: 200,
+            req: 300,
+            shipping_method: "ground"
+          }, {
+            po_number: '123454',
+            client_id: '1003',
+            created_time: '2016-10-21 18:30:00',
+            created_by: 'zhe',
+            EDTA: 0,
+            SST: 1,
+            Plasma: 2,
+            Urine: 3,
+            ESR: 4,
+            regular_box: 100,
+            big_box: 200,
+            req: 300,
+            shipping_method: "ground"
+          }, {
+            po_number: '123454',
+            client_id: '1003',
+            created_time: '2016-10-21 18:30:00',
+            created_by: 'zhe',
+            EDTA: 0,
+            SST: 1,
+            Plasma: 2,
+            Urine: 3,
+            ESR: 4,
+            regular_box: 100,
+            big_box: 200,
+            req: 300,
+            shipping_method: "ground"
+          }, {
+            po_number: '123454',
+            client_id: '1003',
+            created_time: '2016-10-21 18:30:00',
+            created_by: 'zhe',
+            EDTA: 0,
+            SST: 1,
+            Plasma: 2,
+            Urine: 3,
+            ESR: 4,
+            regular_box: 100,
+            big_box: 200,
+            req: 300,
+            shipping_method: "ground"
+          }, {
+            po_number: '123454',
+            client_id: '1003',
+            created_time: '2016-10-21 18:30:00',
+            created_by: 'zhe',
+            EDTA: 0,
+            SST: 1,
+            Plasma: 2,
+            Urine: 3,
+            ESR: 4,
+            regular_box: 100,
+            big_box: 200,
+            req: 300,
+            shipping_method: "ground"
+          }
+        ],
+        tableData3: [
+          {
+            po_number: '123454',
+            client_id: '1003',
+            created_time: '2016-10-21 18:30:00',
+            created_by: 'zhe',
+            EDTA: 0,
+            SST: 1,
+            Plasma: 2,
+            Urine: 3,
+            ESR: 4,
+            regular_box: 100,
+            big_box: 200,
+            req: 300,
+            shipping_method: "ground"
+          }, {
+            po_number: '123454',
+            client_id: '1003',
+            created_time: '2016-10-21 18:30:00',
+            created_by: 'zhe',
+            EDTA: 0,
+            SST: 1,
+            Plasma: 2,
+            Urine: 3,
+            ESR: 4,
+            regular_box: 100,
+            big_box: 200,
+            req: 300,
+            shipping_method: "ground"
+          }, {
+            po_number: '123454',
+            client_id: '1003',
+            created_time: '2016-10-21 18:30:00',
+            created_by: 'zhe',
+            EDTA: 0,
+            SST: 1,
+            Plasma: 2,
+            Urine: 3,
+            ESR: 4,
+            regular_box: 100,
+            big_box: 200,
+            req: 300,
+            shipping_method: "ground"
+          }, {
+            po_number: '123454',
+            client_id: '1003',
+            created_time: '2016-10-21 18:30:00',
+            created_by: 'zhe',
+            EDTA: 0,
+            SST: 1,
+            Plasma: 2,
+            Urine: 3,
+            ESR: 4,
+            regular_box: 100,
+            big_box: 200,
+            req: 300,
+            shipping_method: "ground"
+          }, {
+            po_number: '123454',
+            client_id: '1003',
+            created_time: '2016-10-21 18:30:00',
+            created_by: 'zhe',
+            EDTA: 0,
+            SST: 1,
+            Plasma: 2,
+            Urine: 3,
+            ESR: 4,
+            regular_box: 100,
+            big_box: 200,
+            req: 300,
+            shipping_method: "ground"
+          }
+        ],
       }
     },
     methods: {
