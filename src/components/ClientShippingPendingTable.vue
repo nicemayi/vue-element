@@ -1,6 +1,14 @@
 <style>
   #main_div {
     margin-top: 20px;
+    align: center;
+    width: 1000px;
+    margin: auto;
+  }
+  el-tabs {
+        align: center;
+    width: 1000px;
+    margin: auto;
   }
 </style>
 
@@ -14,58 +22,69 @@
         style="width: 100%">
         <el-table-column
           property="po_number"
-          label="PO Number"
+          label="PO"
           sortable
-          width="180">
+          width="130">
         </el-table-column>
         <el-table-column
           property="client_id"
           label="Client ID"
-          width="180">
+          width="100">
         </el-table-column>
         <el-table-column
           property="created_time"
-          label="Created Time">
+          label="Created Time"
+          width="180">
         </el-table-column>
         <el-table-column
           property="created_by"
-          label="Created By">
+          label="By"
+          width="80">
         </el-table-column>
         <el-table-column
           property="SST"
-          label="SST">
+          label="SST"
+          width="80">
         </el-table-column>
         <el-table-column
           property="EDTA"
-          label="EDTA">
+          label="EDTA"
+          width="75">
         </el-table-column>
         <el-table-column
           property="Plasma"
-          label="Plasma">
+          label="Plasma"
+          width="85">
         </el-table-column>
         <el-table-column
           property="Urine"
-          label="Urine">
+          label="Urine"
+          width="80">
         </el-table-column>
         <el-table-column
           property="ESR"
-          label="ESR">
+          label="ESR"
+          width="80">
         </el-table-column>
         <el-table-column
           property="regular_box"
-          label="Regular Box">
+          label="Regular Box"
+          width="120">
         </el-table-column>
         <el-table-column
           property="big_box"
-          label="Big Box">
+          label="Big Box"
+          width="90">
         </el-table-column>
         <el-table-column
           property="req"
-          label="Requisition Form">
+          label="Req Form"
+          width="110">
         </el-table-column>
         <el-table-column
           property="shipping_method"
-          label="Shipping Method">
+          label="Shipping Method"
+          width="170">
         </el-table-column>
       </el-table>
     </el-tab-pane>
