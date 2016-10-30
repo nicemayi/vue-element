@@ -2,172 +2,119 @@
   #main_div {
     margin-top: 20px;
     align: center;
-    width: 1000px;
-    margin: auto;
+    width: 1400px;
+    /*margin: auto;*/
   }
   el-tabs {
-        align: center;
-    width: 1000px;
-    margin: auto;
+    align: center;
+    width: 10px;
   }
 </style>
 
 <template>
-  <div class="container" id="main_div">
-  <el-tabs>
-    <el-tab-pane label="Pending Order">
-      <el-table
-        :data="tableData"
-        border
-        style="width: 100%">
-        <el-table-column
-          property="po_number"
-          label="PO"
-          sortable
-          width="130">
-        </el-table-column>
-        <el-table-column
-          property="client_id"
-          label="Client ID"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          property="created_time"
-          label="Created Time"
-          width="180">
-        </el-table-column>
-        <el-table-column
-          property="created_by"
-          label="By"
-          width="80">
-        </el-table-column>
-        <el-table-column
-          property="SST"
-          label="SST"
-          width="80">
-        </el-table-column>
-        <el-table-column
-          property="EDTA"
-          label="EDTA"
-          width="75">
-        </el-table-column>
-        <el-table-column
-          property="Plasma"
-          label="Plasma"
-          width="85">
-        </el-table-column>
-        <el-table-column
-          property="Urine"
-          label="Urine"
-          width="80">
-        </el-table-column>
-        <el-table-column
-          property="ESR"
-          label="ESR"
-          width="80">
-        </el-table-column>
-        <el-table-column
-          property="regular_box"
-          label="Regular Box"
-          width="120">
-        </el-table-column>
-        <el-table-column
-          property="big_box"
-          label="Big Box"
-          width="90">
-        </el-table-column>
-        <el-table-column
-          property="req"
-          label="Req Form"
-          width="110">
-        </el-table-column>
-        <el-table-column
-          property="shipping_method"
-          label="Shipping Method"
-          width="170">
-        </el-table-column>
+  <div class="container-fluid" id="main_div">
+    <el-tabs>
+      <el-tab-pane label="Pending Order">
+        <el-table
+          :data="tableData"
+          border
+          style="width: 100%"
+             @cellclick="cellClicked">
+          <el-table-column
+            property="po_number"
+            label="PO"
+            sortable
+            width="130">
+          </el-table-column>
+          <el-table-column
+            property="client_id"
+            label="Client ID"
+            width="100">
+          </el-table-column>
+          <el-table-column
+            property="client_name"
+            label="Client Name"
+            width="170">
+          </el-table-column>
+          <el-table-column
+            property="created_time"
+            label="Created Time"
+            width="180">
+          </el-table-column>
+          <el-table-column
+            property="created_by"
+            label="By"
+            width="80">
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
+      <el-tab-pane label="Completed Order">
+
+        <el-table
+          :data="tableData3"
+          border
+          style="width: 100%">
+          <el-table-column
+            property="po_number"
+            label="PO Number"
+            sortable
+            width="180">
+          </el-table-column>
+          <el-table-column
+            property="client_id"
+            label="Client ID"
+            width="180">
+          </el-table-column>
+          <el-table-column
+            property="created_time"
+            label="Created Time">
+          </el-table-column>
+          <el-table-column
+            property="created_by"
+            label="Created By">
+          </el-table-column>
+          <el-table-column
+            property="req"
+            label="Requisition Form">
+          </el-table-column>
+          <el-table-column
+            property="shipping_method"
+            label="Shipping Method">
+          </el-table-column>
+        </el-table>
+
+
+
+      </el-tab-pane>
+    </el-tabs>
+
+    <el-dialog title="收货地址" v-model="dialogFormVisible">
+      <el-table :data="tableData">
+        <el-table-column property="date" label="日期" width="150"></el-table-column>
+        <el-table-column property="name" label="姓名" width="200"></el-table-column>
+        <el-table-column property="address" label="地址"></el-table-column>
       </el-table>
-    </el-tab-pane>
-    <el-tab-pane label="Completed Order">
-
-      <el-table
-        :data="tableData3"
-        border
-        style="width: 100%">
-        <el-table-column
-          property="po_number"
-          label="PO Number"
-          sortable
-          width="180">
-        </el-table-column>
-        <el-table-column
-          property="client_id"
-          label="Client ID"
-          width="180">
-        </el-table-column>
-        <el-table-column
-          property="created_time"
-          label="Created Time">
-        </el-table-column>
-        <el-table-column
-          property="created_by"
-          label="Created By">
-        </el-table-column>
-        <el-table-column
-          property="SST"
-          label="SST">
-        </el-table-column>
-        <el-table-column
-          property="EDTA"
-          label="EDTA">
-        </el-table-column>
-        <el-table-column
-          property="Plasma"
-          label="Plasma">
-        </el-table-column>
-        <el-table-column
-          property="Urine"
-          label="Urine">
-        </el-table-column>
-        <el-table-column
-          property="ESR"
-          label="ESR">
-        </el-table-column>
-        <el-table-column
-          property="regular_box"
-          label="Regular Box">
-        </el-table-column>
-        <el-table-column
-          property="big_box"
-          label="Big Box">
-        </el-table-column>
-        <el-table-column
-          property="req"
-          label="Requisition Form">
-        </el-table-column>
-        <el-table-column
-          property="shipping_method"
-          label="Shipping Method">
-        </el-table-column>
-      </el-table>
-
-
-    </el-tab-pane>
-  </el-tabs>
+    </el-dialog>
 
   </div>
+
+
+
 </template>
 
 <script>
   export default {
     data() {
       return {
+        dialogFormVisible: false,
         tableData: [
           {
             po_number: '123454',
             client_id: '1003',
+            client_name: 'haha',
             created_time: '2016-10-21 18:30:00',
             created_by: 'zhe',
+            client_address: "123, main st, Cupertino",
             EDTA: 0,
             SST: 1,
             Plasma: 2,
@@ -180,8 +127,10 @@
           }, {
             po_number: '123454',
             client_id: '1003',
+            client_name: 'haha',
             created_time: '2016-10-21 18:30:00',
             created_by: 'zhe',
+            client_address: "123, main st, Cupertino",
             EDTA: 0,
             SST: 1,
             Plasma: 2,
@@ -194,8 +143,10 @@
           }, {
             po_number: '123454',
             client_id: '1003',
+            client_name: 'haha',
             created_time: '2016-10-21 18:30:00',
             created_by: 'zhe',
+            client_address: "123, main st, Cupertino",
             EDTA: 0,
             SST: 1,
             Plasma: 2,
@@ -208,8 +159,10 @@
           }, {
             po_number: '123454',
             client_id: '1003',
+            client_name: 'haha',
             created_time: '2016-10-21 18:30:00',
             created_by: 'zhe',
+            client_address: "123, main st, Cupertino",
             EDTA: 0,
             SST: 1,
             Plasma: 2,
@@ -222,8 +175,10 @@
           }, {
             po_number: '123454',
             client_id: '1003',
+            client_name: 'haha',
             created_time: '2016-10-21 18:30:00',
             created_by: 'zhe',
+            client_address: "123, main st, Cupertino",
             EDTA: 0,
             SST: 1,
             Plasma: 2,
@@ -239,8 +194,10 @@
           {
             po_number: '123454',
             client_id: '1003',
+            client_name: 'haha',
             created_time: '2016-10-21 18:30:00',
             created_by: 'zhe',
+            client_address: "123, main st, Cupertino",
             EDTA: 0,
             SST: 1,
             Plasma: 2,
@@ -253,8 +210,10 @@
           }, {
             po_number: '123454',
             client_id: '1003',
+            client_name: 'haha',
             created_time: '2016-10-21 18:30:00',
             created_by: 'zhe',
+            client_address: "123, main st, Cupertino",
             EDTA: 0,
             SST: 1,
             Plasma: 2,
@@ -267,8 +226,10 @@
           }, {
             po_number: '123454',
             client_id: '1003',
+            client_name: 'haha',
             created_time: '2016-10-21 18:30:00',
             created_by: 'zhe',
+            client_address: "123, main st, Cupertino",
             EDTA: 0,
             SST: 1,
             Plasma: 2,
@@ -281,8 +242,10 @@
           }, {
             po_number: '123454',
             client_id: '1003',
+            client_name: 'haha',
             created_time: '2016-10-21 18:30:00',
             created_by: 'zhe',
+            client_address: "123, main st, Cupertino",
             EDTA: 0,
             SST: 1,
             Plasma: 2,
@@ -295,8 +258,10 @@
           }, {
             po_number: '123454',
             client_id: '1003',
+            client_name: 'haha',
             created_time: '2016-10-21 18:30:00',
             created_by: 'zhe',
+            client_address: "123, main st, Cupertino",
             EDTA: 0,
             SST: 1,
             Plasma: 2,
@@ -313,6 +278,10 @@
     methods: {
       formatter(row, column) {
         return row.address;
+      },
+      cellClicked() {
+        console.log("haha");
+        this.dialogFormVisible = !this.dialogFormVisible;
       }
     }
   }
