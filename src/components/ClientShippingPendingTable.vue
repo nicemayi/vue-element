@@ -2,7 +2,7 @@
   #main_div {
     margin-top: 20px;
     align: center;
-    width: 1400px;
+    width: 1800px;
     /*margin: auto;*/
   }
   el-tabs {
@@ -16,39 +16,30 @@
     <el-tabs>
       <el-tab-pane label="Pending Order">
         <el-table
-          :data="tableData"
-          border
-          style="width: 100%"
-             @cellclick="cellClicked">
-          <el-table-column
-            property="po_number"
-            label="PO"
-            sortable
-            width="130">
-          </el-table-column>
-          <el-table-column
-            property="client_id"
-            label="Client ID"
-            width="100">
-          </el-table-column>
-          <el-table-column
-            property="client_name"
-            label="Client Name"
-            width="170">
-          </el-table-column>
-          <el-table-column
-            property="created_time"
-            label="Created Time"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            property="created_by"
-            label="By"
-            width="80">
-          </el-table-column>
-        </el-table>
+    :data="tableData"
+    >
+    <el-table-column
+      type="selection"
+      width="50">
+    </el-table-column>
+    <el-table-column
+      inline-template
+      label="0909"
+      width="120">
+      <div>{{ row.client_id }}</div>
+    </el-table-column>
+    <el-table-column
+      property="client_id"
+      label="bbb"
+      width="120">
+    </el-table-column>
+    <el-table-column
+      property="client_id"
+      label="aaa">
+    </el-table-column>
+  </el-table>
       </el-tab-pane>
-      <el-tab-pane label="Completed Order">
+<!--       <el-tab-pane label="Completed Order">
 
         <el-table
           :data="tableData3"
@@ -85,7 +76,7 @@
 
 
 
-      </el-tab-pane>
+      </el-tab-pane> -->
     </el-tabs>
 
     <el-dialog title="收货地址" v-model="dialogFormVisible">
@@ -106,6 +97,7 @@
   export default {
     data() {
       return {
+        multipleSelection: [],
         dialogFormVisible: false,
         tableData: [
           {
@@ -280,8 +272,13 @@
         return row.address;
       },
       cellClicked() {
-        console.log("haha");
-        this.dialogFormVisible = !this.dialogFormVisible;
+        // this.dialogFormVisible = !this.dialogFormVisible;
+      },
+      select() {
+        console.log("select");
+      },
+      selectAll() {
+        console.log("selectAll");
       }
     }
   }

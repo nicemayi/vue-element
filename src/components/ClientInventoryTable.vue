@@ -1,8 +1,4 @@
 <style>
-  #client_order_modal {
-    /*margin-top: 100;*/
-    /*padding-top: 100;*/
-  }
   #search_client {
     /*margin-bottom: 100px;*/
     padding-top: 20px;
@@ -10,15 +6,18 @@
   }
   #main_div {
     margin-top: 20px;
+    /*overflow: hidden;*/
+/*    overflow-y: auto;*/
   }
+
 </style>
 
 <template>
-  <div class="container" id="main_div">
+  <div class="container-fluid" id="main_div">
     <el-row :gutter="20">
-      <el-col :span="6">
+      <el-col :span="4">
         <el-input id="search_client"
-          placeholder="Type in the client name you are looking for..."
+          placeholder="search..."
           v-model="searchText">
         </el-input>
       </el-col>
@@ -26,12 +25,34 @@
 
     <el-table
       :data="filteredTableData"
-      @cellclick="cellClicked"
+      height="250"
+      stripe
       border
-      style="width: 100%">
+      show-tooltip-when-overflow="true"
+      style="width: 100%"
+>
+      <el-table-column
+        type="selection"
+        width="50">
+      </el-table-column>
       <el-table-column
         property="client_id"
         label="Client ID"
+        sortable>
+      </el-table-column>
+      <el-table-column
+        property="client_type"
+        label="Type"
+        sortable
+        :filters="[{ text: 'Doctor', value: 'doctor' }, { text: 'Phlebotomist', value: 'phlebotomist' }]"
+        :filter-method="filterClientType"
+        width="180"
+        inline-template>
+        <el-tag :type="row.client_type === 'doctor' ? 'primary' : 'success'" close>{{row.client_type}}</el-tag>
+    </el-table-column>
+      <el-table-column
+        property="client_name"
+        label="Client Name"
         sortable>
       </el-table-column>
       <el-table-column
@@ -71,13 +92,14 @@
       </el-table-column>
       <el-table-column
         property="last_update_time"
-        label="Last Update Time"
-        sortable>
+        label="Last PO Time"
+        sortable
+        :formatter="formatDatetime">
       </el-table-column>
     </el-table>
     
     <div class="container">
-      <el-dialog top= "5%" v-model="dialogFormVisible" size="small" :lock-scroll="true" :title="`Edit order for client: ${modal_client_id}`">
+      <el-dialog top= "5%" v-model="dialogFormVisible" size="small" :title="`Edit order for client: ${modal_client_id}`">
         <el-tag type="success" size="large">{{modal_client_id}}</el-tag>
         <el-tag type="warning">Vibanrt</el-tag>
         <el-tag type="danger">123 main st, cupertino, CA</el-tag>
@@ -86,7 +108,7 @@
             <div class="col-md-6">
               <div class="panel-group">
                 <div class="panel panel-primary">
-                  <div class="panel-heading" style="background: #4DB3FF">Tube Sets</div>
+                  <div class="panel-heading">Tube Sets</div>
                   <div class="panel-body">
                     <el-form-item label="Serum tube only">
                       <el-input-number v-model="form.client_tube_set_sst" size="large"></el-input-number>
@@ -97,13 +119,16 @@
                     <el-form-item label="Standard">
                       <el-input-number v-model="form.client_tube_set_standard" size="large"></el-input-number>
                     </el-form-item>
+                    <el-form-item label="All HA">
+                      <el-input-number v-model="form.client_tube_set_all_ha" size="large"></el-input-number>
+                    </el-form-item>
                     <el-form-item label="All">
                       <el-input-number v-model="form.client_tube_set_all" size="large"></el-input-number>
                     </el-form-item>
                   </div>
                 </div>
                 <div class="panel panel-primary">
-                  <div class="panel-heading" style="background: #4DB3FF">Box Sets</div>
+                  <div class="panel-heading">Box Sets</div>
                   <div class="panel-body">
                     <el-form-item label="Regular cooler">
                       <el-input-number v-model="form.regular_cooler" size="large"></el-input-number>
@@ -118,7 +143,19 @@
             <div class="col-md-6">
               <div class="panel-group">
                 <div class="panel panel-primary">
-                  <div class="panel-heading" style="background: #4DB3FF">Requisition Forms</div>
+                  <div class="panel-heading">Requisition Forms</div>
+                  <div class="panel-body">
+                    <el-input-number v-model="form.req_forms"></el-input-number>
+                  </div>
+                </div>
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Phlebotomy Supplies</div>
+                    <div class="panel-body">
+                    <el-input type="textarea" :rows="5" v-model="form.phlebotomy_supplies"></el-input>
+                    </div>
+                  </div>
+                <div class="panel panel-primary">
+                  <div class="panel-heading">Shipping Methods</div>
                   <div class="panel-body">
                     <el-select v-model="form.shipping_method" placeholder='Please choose shipping method'>
                       <el-option
@@ -129,20 +166,13 @@
                     </el-select>
                   </div>
                 </div>
-                <div class="panel panel-primary" style="margin-top:20px">
-                  <div class="panel-heading" style="background: #4DB3FF">Shipping Methods</div>
+                <div class="panel panel-primary">
+                  <div class="panel-heading">Comments</div>
                   <div class="panel-body">
-                    <el-input-number v-model="form.req_forms"></el-input-number>
-                  </div>
-                </div>
-                <div class="panel panel-primary" style="margin-top:20px">
-                  <div class="panel-heading" style="background: #4DB3FF">Comments</div>
-                  <div class="panel-body" style="padding: 0px 0px 0px 0px;">
                     <el-input type="textarea" :rows="textAreaRows" v-model="form.comments"></el-input>
                     </el-form-item>
                   </div>
                 </div>
-                
               </div>
             </div>
           </div>
@@ -150,7 +180,7 @@
         <hr/>
         <span slot="footer" class="dialog-footer center" align="center">
           <el-button @click.native="dialogFormVisible = false">Cancel</el-button>
-          <el-button id="submit_btn" :disable="ifValidOrder" @click.native.prevent="onSubmit" type="primary" @click.native="dialogFormVisible = false">Create</el-button>
+          <el-button id="submit_btn" :disable="ifValidOrder" @click.native.prevent="onSubmit" type="primary" @click.native="dialogFormVisible = false" style="background-color: #337AB7;" >Create</el-button>
         </span>
       </el-dialog>
     </div>
@@ -224,7 +254,8 @@
             eachRow.client_id,
             eachRow.last_update_time,
             eachRow.regular_box,
-            eachRow.req
+            eachRow.req,
+            eachRow.client_name
           ].join(' ');
           return row_str.includes(self.searchText);
         })
@@ -232,7 +263,7 @@
     },
     data() {
       return {
-        textAreaRows: 11,
+        textAreaRows: 4,
         modal_client_id: '12',
         options: [{
           value: 'ground',
@@ -254,6 +285,7 @@
           client_tube_set_sst: 0,
           client_tube_set_sst_and_edta: 0,
           client_tube_set_standard: 0,
+          client_tube_set_all_ha: 10,
           client_tube_set_all: 0,
           regular_cooler: 0,
           larger_cooler: 0,
@@ -266,6 +298,8 @@
         searchText: '',
         tableData: [
           {
+            "client_name": "john",
+            "client_type": "phlebotomist",
             "EDTA": 0,
             "ESR": 0,
             "Plasma": 0,
@@ -273,7 +307,7 @@
             "Urine": 0,
             "big_box": 0,
             "client_id": 0,
-            "create_time": "2016-10-11 11:5726",
+            "create_time": "16/10/11 11:5726",
             "index": 2075,
             "is_active": "YES",
             "last_update_time": "",
@@ -283,6 +317,8 @@
             "req": 0
           },
           {
+            "client_name": "do",
+            "client_type": "phlebotomist",
             "EDTA": 0,
             "ESR": 0,
             "Plasma": 0,
@@ -300,6 +336,8 @@
             "req": 0
           },
           {
+            "client_name": "may",
+            "client_type": "doctor",
             "EDTA": -18,
             "ESR": 0,
             "Plasma": 0,
@@ -310,13 +348,15 @@
             "create_time": "2016-10-11 11:5726",
             "index": 2077,
             "is_active": "YES",
-            "last_update_time": "2016-10-22 19:28:13",
+            "last_update_time": "10/22/16 19:28:13",
             "modified_comments": "",
             "modified_time": "",
             "regular_box": 0,
             "req": -20
         },
         {
+            "client_name": "penny",
+            "client_type": "doctor",
             "EDTA": 0,
             "ESR": 0,
             "Plasma": 0,
@@ -324,7 +364,7 @@
             "Urine": 0,
             "big_box": 0,
             "client_id": 1004,
-            "create_time": "2016-10-11 11:5726",
+            "create_time": "2016-10-11 11:57:26",
             "index": 2078,
             "is_active": "YES",
             "last_update_time": "",
@@ -337,16 +377,21 @@
       }
     },
     methods: {
-      formatter(row, column) {
-        return row.client_id;
+      filterClientType(value, row) {
+        return row.client_type === value;
+      },
+      formatDatetime(row, column) {
+        return row.last_update_time
       },
       onSubmit(){
         console.log("on submit!");
       },
-      cellClicked(row) {
-        this.modal_client_id = row.client_id;
-        this.openModal(row)
-      },
+      // cellClicked(row, column, cell, event) {
+
+      //   console.log(cell.text);
+      //   // this.modal_client_id = row.client_id;
+      //   // this.openModal(row)
+      // },
       openModal(row) {
         // console.log("now this.dialogFormVisible is: ", this.dialogFormVisible)
         this.dialogFormVisible = !this.dialogFormVisible;

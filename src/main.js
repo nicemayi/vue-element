@@ -12,15 +12,17 @@ import ClientInventoryTable from './components/ClientInventoryTable.vue'
 import Receive from './components/Receive.vue'
 import ElementForm from './components/ElementForm.vue'
 
+import testTable from './components/testTable.vue'
+
 
 
 Vue.use(ElementUI)
 Vue.use(Router);
-
+// ClientShippingPendingTable
 const router = new Router({
   routes: [
     { path: '/receive', component: Receive },
-    { path: '/shipping-pending', component: ClientShippingPendingTable },
+    { path: '/shipping-pending', component: testTable },
     { path: '/status', component: ClientInventoryTable }
   ]
 })
