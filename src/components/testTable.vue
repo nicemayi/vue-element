@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div id="app">
   <el-table
     :data="tableData3"
     style="width: 100%"
-    >
+   >
     <el-table-column
       type="selection"
       width="50">
@@ -15,12 +15,12 @@
       <div>{{ row.date }}</div>
     </el-table-column>
     <el-table-column
-      property="name"
+      prop="name"
       label="姓名"
       width="120">
     </el-table-column>
     <el-table-column
-      property="address"
+      prop="address"
       label="地址"
       show-tooltip-when-overflow>
     </el-table-column>
@@ -66,10 +66,15 @@
     },
 
     methods: {
-
-    },
-    events: {
-
+      handleSelectionChange(val) {
+        this.multipleSelection = val;
+      }
     }
   }
 </script>
+
+<style>
+body {
+  font-family: Helvetica, sans-serif;
+}
+</style>

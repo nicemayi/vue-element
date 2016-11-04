@@ -1,68 +1,106 @@
 <style>
   #main_div {
     margin-top: 20px;
-    align: center;
-    width: 1800px;
-    /*margin: auto;*/
+    width: 96%;
   }
-  el-tabs {
-    align: center;
-    width: 10px;
+  #search_div {
+    margin-bottom: 10px;
   }
 </style>
 
 <template>
-  <div class="container-fluid" id="main_div">
-    <el-tabs>
-      <el-tab-pane label="Pending Order">
+  <div class="container-fluid" id="main_div" align="center">
+    <el-tabs style="width: 1800px;">
+      <el-tab-pane label="Pending Orders">
+        <div id="search_div" class="container-fluid" align="left">
+          <el-input id="search_client"
+            placeholder="search..."
+            v-model="searchText"
+            style="width: 200px;">
+          </el-input>
+        </div>
         <el-table
-    :data="tableData"
-    >
-    <el-table-column
-      type="selection"
-      width="50">
-    </el-table-column>
-    <el-table-column
-      inline-template
-      label="0909"
-      width="120">
-      <div>{{ row.client_id }}</div>
-    </el-table-column>
-    <el-table-column
-      property="client_id"
-      label="bbb"
-      width="120">
-    </el-table-column>
-    <el-table-column
-      property="client_id"
-      label="aaa">
-    </el-table-column>
-  </el-table>
-      </el-tab-pane>
-<!--       <el-tab-pane label="Completed Order">
-
-        <el-table
-          :data="tableData3"
-          border
-          style="width: 100%">
+          :data="filteredTableData"
+          @select="selectOneRowPending"
+          @select-all="selectAllRowPending"
+          @cell-click="cellClicked">
+          <el-table-column
+            type="selection"
+            width="50">
+          </el-table-column>
           <el-table-column
             property="po_number"
             label="PO Number"
-            sortable
-            width="180">
+            sortable>
           </el-table-column>
           <el-table-column
             property="client_id"
-            label="Client ID"
-            width="180">
+            label="Client ID">
           </el-table-column>
           <el-table-column
-            property="created_time"
-            label="Created Time">
+            property="client_name"
+            label="Client Name">
           </el-table-column>
           <el-table-column
-            property="created_by"
-            label="Created By">
+            property="po_created_time"
+            label="PO Created Time">
+          </el-table-column>
+          <el-table-column
+            property="po_created_by"
+            label="PO Created By">
+          </el-table-column>
+          <el-table-column
+            property="req"
+            label="Requisition Form">
+          </el-table-column>
+          <el-table-column
+            property="shipping_method"
+            label="Shipping Method">
+          </el-table-column>
+          <el-table-column
+            prop="tag"
+            width="100"
+            inline-template>
+            <el-button type="primary" icon="delete" size="small" @click="deleteMe(row)"></el-button>
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
+      <el-tab-pane label="Completed Order">
+        <div class="container-fluid" align="left">
+          <el-input id="search_client"
+            placeholder="search..."
+            v-model="searchText"
+            style="width: 200px;">
+          </el-input>
+        </div>
+        <el-table
+          :data="tableData3"
+          @select="selectOneRowCompleted"
+          @select-all="selectAllRowCompleted">
+          <el-table-column
+            type="selection"
+            width="50">
+          </el-table-column>
+          <el-table-column
+            property="po_number"
+            label="PO Number"
+            sortable>
+          </el-table-column>
+          <el-table-column
+            property="client_id"
+            label="Client ID">
+          </el-table-column>
+          <el-table-column
+            property="client_name"
+            label="Client Name">
+          </el-table-column>
+          <el-table-column
+            property="po_created_time"
+            label="PO Created Time">
+          </el-table-column>
+          <el-table-column
+            property="po_created_by"
+            label="PO Created By">
           </el-table-column>
           <el-table-column
             property="req"
@@ -73,11 +111,17 @@
             label="Shipping Method">
           </el-table-column>
         </el-table>
-
-
-
-      </el-tab-pane> -->
+      </el-tab-pane>
     </el-tabs>
+
+    <hr/>
+    <div class="block" align="left">
+      <span class="wrapper">
+        <el-button type="success" :disabled="multipleSelection.length == 0">Pack Order</el-button>
+        <el-button type="warning" :disabled="multipleSelection.length == 0">Verify Order</el-button>
+        <el-button type="danger" :disabled="multipleSelection.length == 0">Print Order Details</el-button>
+      </span>
+    </div>
 
     <el-dialog title="收货地址" v-model="dialogFormVisible">
       <el-table :data="tableData">
@@ -95,177 +139,237 @@
 
 <script>
   export default {
+    computed: {
+      filteredTableData: function () {
+        var self = this;
+        return self.tableData.filter(function (eachRow) {
+          let row_str = [
+            eachRow.po_number,
+            eachRow.client_id,
+            eachRow.client_name,
+            eachRow.po_created_time,
+            eachRow.po_created_by,
+            eachRow.client_address,
+          ].join(' ');
+          return row_str.includes(self.searchText);
+        })
+      },
+    },
     data() {
       return {
+        searchText: '',
         multipleSelection: [],
         dialogFormVisible: false,
         tableData: [
           {
-            po_number: '123454',
+            po_number: '11111',
             client_id: '1003',
             client_name: 'haha',
-            created_time: '2016-10-21 18:30:00',
-            created_by: 'zhe',
+            po_created_time: '10/21/05 18:30:00',
+            po_created_by: 'zhe',
+            is_packed: false,
+            is_verified: false,
             client_address: "123, main st, Cupertino",
-            EDTA: 0,
-            SST: 1,
-            Plasma: 2,
-            Urine: 3,
-            ESR: 4,
+            SST_only: 0,
+            SST_and_EDTA: 1,
+            standard_tube_set: 2,
+            set_all_ha: 3,
+            set_all: 10,
             regular_box: 100,
             big_box: 200,
             req: 300,
-            shipping_method: "ground"
+            shipping_method: "ground",
+            comments: 'haha in comments',
+            ph_comments: 'haha in ph comments'
           }, {
-            po_number: '123454',
+            po_number: '22222',
             client_id: '1003',
             client_name: 'haha',
-            created_time: '2016-10-21 18:30:00',
-            created_by: 'zhe',
+            po_created_time: '10/21/05 18:30:00',
+            po_created_by: 'zhe',
+            is_packed: false,
+            is_verified: false,
             client_address: "123, main st, Cupertino",
-            EDTA: 0,
-            SST: 1,
-            Plasma: 2,
-            Urine: 3,
-            ESR: 4,
+            SST_only: 0,
+            SST_and_EDTA: 1,
+            standard_tube_set: 2,
+            set_all_ha: 3,
+            set_all: 10,
             regular_box: 100,
             big_box: 200,
             req: 300,
-            shipping_method: "ground"
+            shipping_method: "ground",
+            comments: 'haha in comments',
+            ph_comments: 'haha in ph comments'
           }, {
-            po_number: '123454',
+            po_number: '33333',
             client_id: '1003',
             client_name: 'haha',
-            created_time: '2016-10-21 18:30:00',
-            created_by: 'zhe',
+            po_created_time: '10/21/05 18:30:00',
+            po_created_by: 'zhe',
+            is_packed: false,
+            is_verified: false,
             client_address: "123, main st, Cupertino",
-            EDTA: 0,
-            SST: 1,
-            Plasma: 2,
-            Urine: 3,
-            ESR: 4,
+            SST_only: 0,
+            SST_and_EDTA: 1,
+            standard_tube_set: 2,
+            set_all_ha: 3,
+            set_all: 10,
             regular_box: 100,
             big_box: 200,
             req: 300,
-            shipping_method: "ground"
+            shipping_method: "ground",
+            comments: 'haha in comments',
+            ph_comments: 'haha in ph comments'
           }, {
-            po_number: '123454',
+            po_number: '44444',
             client_id: '1003',
             client_name: 'haha',
-            created_time: '2016-10-21 18:30:00',
-            created_by: 'zhe',
+            po_created_time: '10/21/05 18:30:00',
+            po_created_by: 'zhe',
+            is_packed: false,
+            is_verified: false,
             client_address: "123, main st, Cupertino",
-            EDTA: 0,
-            SST: 1,
-            Plasma: 2,
-            Urine: 3,
-            ESR: 4,
+            SST_only: 0,
+            SST_and_EDTA: 1,
+            standard_tube_set: 2,
+            set_all_ha: 3,
+            set_all: 10,
             regular_box: 100,
             big_box: 200,
             req: 300,
-            shipping_method: "ground"
+            shipping_method: "ground",
+            comments: 'haha in comments',
+            ph_comments: 'haha in ph comments'
           }, {
-            po_number: '123454',
+            po_number: '55555',
             client_id: '1003',
             client_name: 'haha',
-            created_time: '2016-10-21 18:30:00',
-            created_by: 'zhe',
+            po_created_time: '10/21/05 18:30:00',
+            po_created_by: 'zhe',
+            is_packed: false,
+            is_verified: false,
             client_address: "123, main st, Cupertino",
-            EDTA: 0,
-            SST: 1,
-            Plasma: 2,
-            Urine: 3,
-            ESR: 4,
+            SST_only: 0,
+            SST_and_EDTA: 1,
+            standard_tube_set: 2,
+            set_all_ha: 3,
+            set_all: 10,
             regular_box: 100,
             big_box: 200,
             req: 300,
-            shipping_method: "ground"
+            shipping_method: "ground",
+            comments: 'haha in comments',
+            ph_comments: 'haha in ph comments'
           }
         ],
         tableData3: [
           {
-            po_number: '123454',
+            po_number: '111111',
             client_id: '1003',
             client_name: 'haha',
-            created_time: '2016-10-21 18:30:00',
-            created_by: 'zhe',
+            po_created_time: '10/21/05 18:30:00',
+            po_created_by: 'zhe',
+            is_packed: false,
+            is_verified: false,
             client_address: "123, main st, Cupertino",
-            EDTA: 0,
-            SST: 1,
-            Plasma: 2,
-            Urine: 3,
-            ESR: 4,
+            SST_only: 0,
+            SST_and_EDTA: 1,
+            standard_tube_set: 2,
+            set_all_ha: 3,
+            set_all: 10,
             regular_box: 100,
             big_box: 200,
             req: 300,
-            shipping_method: "ground"
+            shipping_method: "ground",
+            comments: 'haha in comments',
+            ph_comments: 'haha in ph comments'
           }, {
-            po_number: '123454',
+            po_number: '2222222',
             client_id: '1003',
             client_name: 'haha',
-            created_time: '2016-10-21 18:30:00',
-            created_by: 'zhe',
+            po_created_time: '10/21/05 18:30:00',
+            po_created_by: 'zhe',
+            is_packed: false,
+            is_verified: false,
             client_address: "123, main st, Cupertino",
-            EDTA: 0,
-            SST: 1,
-            Plasma: 2,
-            Urine: 3,
-            ESR: 4,
+            SST_only: 0,
+            SST_and_EDTA: 1,
+            standard_tube_set: 2,
+            set_all_ha: 3,
+            set_all: 10,
             regular_box: 100,
             big_box: 200,
             req: 300,
-            shipping_method: "ground"
+            shipping_method: "ground",
+            comments: 'haha in comments',
+            ph_comments: 'haha in ph comments'
           }, {
-            po_number: '123454',
+            po_number: '33333',
             client_id: '1003',
             client_name: 'haha',
-            created_time: '2016-10-21 18:30:00',
-            created_by: 'zhe',
+            po_created_time: '10/21/05 18:30:00',
+            po_created_by: 'zhe',
+            is_packed: false,
+            is_verified: false,
             client_address: "123, main st, Cupertino",
-            EDTA: 0,
-            SST: 1,
-            Plasma: 2,
-            Urine: 3,
-            ESR: 4,
+            SST_only: 0,
+            SST_and_EDTA: 1,
+            standard_tube_set: 2,
+            set_all_ha: 3,
+            set_all: 10,
             regular_box: 100,
             big_box: 200,
             req: 300,
-            shipping_method: "ground"
+            shipping_method: "ground",
+            comments: 'haha in comments',
+            ph_comments: 'haha in ph comments'
           }, {
-            po_number: '123454',
+            po_number: '4444444',
             client_id: '1003',
             client_name: 'haha',
-            created_time: '2016-10-21 18:30:00',
-            created_by: 'zhe',
+            po_created_time: '10/21/05 18:30:00',
+            po_created_by: 'zhe',
+            is_packed: false,
+            is_verified: false,
             client_address: "123, main st, Cupertino",
-            EDTA: 0,
-            SST: 1,
-            Plasma: 2,
-            Urine: 3,
-            ESR: 4,
+            SST_only: 0,
+            SST_and_EDTA: 1,
+            standard_tube_set: 2,
+            set_all_ha: 3,
+            set_all: 10,
             regular_box: 100,
             big_box: 200,
             req: 300,
-            shipping_method: "ground"
+            shipping_method: "ground",
+            comments: 'haha in comments',
+            ph_comments: 'haha in ph comments'
           }, {
-            po_number: '123454',
+            po_number: '55555555',
             client_id: '1003',
             client_name: 'haha',
-            created_time: '2016-10-21 18:30:00',
-            created_by: 'zhe',
+            po_created_time: '10/21/05 18:30:00',
+            po_created_by: 'zhe',
+            is_packed: false,
+            is_verified: false,
             client_address: "123, main st, Cupertino",
-            EDTA: 0,
-            SST: 1,
-            Plasma: 2,
-            Urine: 3,
-            ESR: 4,
+            SST_only: 0,
+            SST_and_EDTA: 1,
+            standard_tube_set: 2,
+            set_all_ha: 3,
+            set_all: 10,
             regular_box: 100,
             big_box: 200,
             req: 300,
-            shipping_method: "ground"
+            shipping_method: "ground",
+            comments: 'haha in comments',
+            ph_comments: 'haha in ph comments'
           }
         ],
       }
+    },
+    events: {
+
     },
     methods: {
       formatter(row, column) {
@@ -274,11 +378,42 @@
       cellClicked() {
         // this.dialogFormVisible = !this.dialogFormVisible;
       },
-      select() {
-        console.log("select");
+      selectOneRowPending(selection, row) {
+        console.log("pending hehe");
+        console.log(selection.length);
+        this.multipleSelection = selection;
       },
-      selectAll() {
-        console.log("selectAll");
+      selectAllRowPending(selection) {
+        console.log("pending haha")
+        this.multipleSelection = selection;
+        console.log("this.multipleSelection: ", this.multipleSelection);
+      },
+      selectOneRowCompleted(selection, row) {
+        console.log("complete hehe");
+        console.log(selection.length);
+      },
+      selectAllRowCompleted(selection) {
+        console.log("complete haha")
+        console.log(selection.length);
+      },
+      cellClicked(row, column, cell, event) {
+        // console.log("cell.className: ", cell.className)
+        if ((cell.className != 'el-table_1_column_1') && (cell.className != 'el-table_1_column_9')) {
+          console.log("row: ", row)
+          console.log("column: ", column)
+          console.log("cell: ", cell.className)
+          console.log("event: ", event)
+          console.log("row clicked!");
+          this.dialogFormVisible = !this.dialogFormVisible;
+          // alert("haha");
+        }
+      },
+      deleteMe (row) {
+        // console.log(a);
+        // tableData
+        this.tableData.remove(function(el) { return el.po_number === row.po_number; });
+        this.multipleSelection.remove(function(el) { return el.po_number === row.po_number; });
+        console.log("po number is: ", row.po_number);
       }
     }
   }

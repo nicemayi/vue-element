@@ -3,6 +3,9 @@ import Router from 'vue-router';
 
 
 import ElementUI from 'element-ui'
+import locale from 'element-ui/lib/locale/lang/en'
+
+
 import 'element-ui/lib/theme-default/index.css'
 
 import App from './App.vue'
@@ -15,14 +18,17 @@ import ElementForm from './components/ElementForm.vue'
 import testTable from './components/testTable.vue'
 
 
+var Sugar = require('sugar');
 
-Vue.use(ElementUI)
+
+
+// Vue.use(ElementUI)
+Vue.use(ElementUI, { locale })
 Vue.use(Router);
-// ClientShippingPendingTable
+Vue.use(Sugar);
 const router = new Router({
   routes: [
-    { path: '/receive', component: Receive },
-    { path: '/shipping-pending', component: testTable },
+    { path: '/shipping-pending', component: ClientShippingPendingTable },
     { path: '/status', component: ClientInventoryTable }
   ]
 })
