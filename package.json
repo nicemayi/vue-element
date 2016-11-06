@@ -5,11 +5,14 @@
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --inline --hot",
-    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
+    "build": "webpack --progress --hide-modules"
   },
   "dependencies": {
     "element-ui": "^1.0.0-rc.4",
-    "vue": "^2.0.1"
+    "eventsource-polyfill": "^0.9.6",
+    "vue": "^2.0.1",
+    "vue-strap": "^1.1.29",
+    "vue-tables": "^1.6.36"
   },
   "devDependencies": {
     "babel-core": "^6.0.0",

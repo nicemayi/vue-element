@@ -12,105 +12,86 @@
       -khtml-user-select: none; /* webkit (konqueror) browsers */
       -ms-user-select: none; /* IE10+ */
   }
-  .round {
-    width: 50px;
-    height: 50px;
-    padding: 10px 16px;
-    font-size: 18px;
-    line-height: 1.33;
-    border-radius: 25px;
-  }
 </style>
 
 <template>
   <div class="container-fluid" id="main_div">
     <el-row id="search_tag" :gutter="20">
-      <el-col :span="4">
-        <el-input id="search_client"
-          placeholder="search..."
-          v-model="searchText">
-        </el-input>
+      <el-col :span="8">
+          <el-autocomplete
+            v-model="searchForClient"
+            :fetch-suggestions="querySearchClient"
+            custom-item="client-id"
+            :trigger-on-focus="false"
+            :autofocus="true"
+            placeholder="Client ID or Client Name..."
+            @select="handleSelectClient">
+          </el-autocomplete>
       </el-col>
     </el-row>
-    <el-table
-      :data="filteredTableData"
-      stripe
-      show-tooltip-when-overflow="true"
-      @row-click="rowClicked">
-      <el-table-column
-        property="client_id"
-        label="Client ID"
-        sortable>
-      </el-table-column>
-      <el-table-column
-        property="client_type"
-        label="Type"
-        sortable
-        width="180"
-        inline-template>
-        <el-tag :type="row.client_type === 'doctor' ? 'primary' : 'success'" close>{{row.client_type}}</el-tag>
-      </el-table-column>
-      <el-table-column
-        property="client_name"
-        label="Client Name"
-        sortable>
-      </el-table-column>
-      <el-table-column
-        property="SST"
-        label="SST"
-        sortable>
-      </el-table-column>
-      <el-table-column
-        property="EDTA"
-        label="EDTA"
-        sortable>
-      </el-table-column>
-      <el-table-column
-        property="Plasma"
-        label="Plasma"
-        sortable>
-      </el-table-column>
-      <el-table-column
-        property="Urine"
-        label="Urine"
-        sortable>
-      </el-table-column>
-      <el-table-column
-        property="big_box"
-        label="Big Box"
-        sortable>
-      </el-table-column>
-      <el-table-column
-        property="regular_box"
-        label="Reg. Box"
-        sortable>
-      </el-table-column>
-      <el-table-column
-        property="req"
-        label="Req. Form"
-        sortable>
-      </el-table-column>
-      <el-table-column
-        property="last_update_time"
-        label="Last PO Time"
-        sortable
-        :formatter="formatDatetime">
-      </el-table-column>
-    </el-table>
+    <div v-if="displayClientStatus">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Client ID</th>
+            <th>Client Name</th>
+            <th>Client Practice Name</th>
+            <th>Client Type</th>
+            <th>Client Address</th>
+            <th>EDTA</th>
+            <th>SST</th>
+            <th>Plasma</th>
+            <th>Urine</th>
+            <th>Regular Box</th>
+            <th>Big Box</th>
+            <th>Requisition Forms</th>
+            <th>Last PO Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{clientCurrentStatus.client_id}}</td>
+            <td>{{clientCurrentStatus.client_name}}</td>
+            <td>{{clientCurrentStatus.client_practice_name}}</td>
+            <td>{{clientCurrentStatus.client_type}}</td>
+            <td>{{clientCurrentStatus.client_address}}</td>
+            <td>{{clientCurrentStatus.EDTA}}</td>
+            <td>{{clientCurrentStatus.SST}}</td>
+            <td>{{clientCurrentStatus.Plasma}}</td>
+            <td>{{clientCurrentStatus.Urine}}</td>
+            <td>{{clientCurrentStatus.regular_box}}</td>
+            <td>{{clientCurrentStatus.big_box}}</td>
+            <td>{{clientCurrentStatus.req}}</td>
+            <td>{{clientCurrentStatus.last_update_time}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <el-button type="primary" @click="placeOrder">Place Order?</el-button>
+    </div>
     <el-dialog top= "2%" v-model="dialogFormVisible" size="large">
-      <div class="block" align="left" style="margin-bottom: 20px;">
-        <span class="wrapper">
-          <el-button type="primary">{{order.selectClientID}}</el-button>
-          <el-button type="warning">{{order.selectClientType}}</el-button>
-          <el-button type="success">{{order.selectClientName}}</el-button>
+      <div class="block" align="left">
+        <span id = "cancleOrCreateBtn" slot="footer" class="dialog-footer center" align="center">
+          <el-button id="submit_btn" @click.native.prevent="onSubmit" type="danger" @click.native="dialogFormVisible = false">Create</el-button>
+          <el-button @click.native="dialogFormVisible = false">Cancel</el-button>
         </span>
-        <div class="block" align="right" style="margin-bottom: 20px;float: right;">
-          <span id = "cancleOrCreateBtn" slot="footer" class="dialog-footer center" align="center">
-            <el-button @click.native="dialogFormVisible = false">Cancel</el-button>
-            <el-button id="submit_btn" :disable="ifValidOrder" @click.native.prevent="onSubmit" type="danger" @click.native="dialogFormVisible = false">Create</el-button>
-          </span>
-        </div>
       </div>
+      <div class="block" align="center">
+        <el-form label-position="right" :inline="true">
+          <el-form-item>
+            <el-button type="primary">{{clientCurrentStatus.client_id}}</el-button>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="warning">{{clientCurrentStatus.client_name}}</el-button>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="success">{{clientCurrentStatus.client_practice_name}}</el-button>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="default">{{clientCurrentStatus.client_address}}</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+      <hr/>
       <div class="row">
         <div class="col-md-4">
           <div class="panel-group">
@@ -243,36 +224,42 @@
 </template>
 
 <script>
-  export default {
-    computed: {
-      ifValidOrder(){
-        return false;
-      },
-      filteredTableData: function () {
-        var self = this;
-        return self.tableData.filter(function (eachRow) {
-          let row_str = [
-            eachRow.EDTA,
-            eachRow.ESR,
-            eachRow.Plasma,
-            eachRow.SST,
-            eachRow.Urine,
-            eachRow.big_box,
-            eachRow.client_id,
-            eachRow.last_update_time,
-            eachRow.regular_box,
-            eachRow.req,
-            eachRow.client_name
-          ].join(' ');
-          return row_str.includes(self.searchText);
-        })
-      },
+  var Vue = require('vue');
+  Vue.component('client-id', {
+    functional: true,
+    render: function (h, ctx){
+      var item = ctx.props.item;
+      return h('li', ctx.data, [
+        h('h3', { attrs: { class: 'name' } }, [item.client_name]),
+        h('div', { attrs: { class: 'addr' } }, [item.client_id])
+      ]);
     },
+    props: {
+      item: { type: Object, required: true }
+    }
+  });
+  export default {
     data() {
       return {
-        select_ph_num: 0,
-        select_ph_item: '',
-        select_ph_item_arr: [],
+        dialogFormVisible: false,
+        displayClientStatus: false,
+        // searchSuggestions: [],
+        searchForClient: '',
+        clientCurrentStatus: {
+          "client_id": '',
+          "EDTA": '',
+          "SST": '',
+          "Plasma": '',
+          "Urine": '',
+          "regular_box": '',
+          "big_box": '',
+          "req": '',
+          "last_update_time": '',
+          "client_name": '',
+          "client_practice_name": '',
+          "client_type": '',
+          "client_address": ''
+        },
         order: {
           selectClientName: '',
           selectClientType: '',
@@ -295,10 +282,8 @@
           phlebotomy_supplies: '',
           comments: ''
         },
+        select_ph_item: '',
         textAreaRows: 7,
-        selectClientID: '',
-        selectClientType: '',
-        selectClientName: '',
         options: [{
           value: 'ground',
           label: 'Ground'
@@ -321,120 +306,30 @@
           value: 'priority overnight',
           label: 'Priority overnight'
         }],
-        dialogFormVisible: false,
         searchText: '',
-        tableData: [
-          {
-            "client_name": "john",
-            "client_type": "phlebotomist",
-            "EDTA": 0,
-            "ESR": 0,
-            "Plasma": 0,
-            "SST": 0,
-            "Urine": 0,
-            "big_box": 0,
-            "client_id": 0,
-            "create_time": "16/10/11 11:5726",
-            "index": 2075,
-            "is_active": "YES",
-            "last_update_time": "",
-            "modified_comments": "",
-            "modified_time": "",
-            "regular_box": 0,
-            "req": 0
-          },
-          {
-            "client_name": "do",
-            "client_type": "phlebotomist",
-            "EDTA": 0,
-            "ESR": 0,
-            "Plasma": 0,
-            "SST": 0,
-            "Urine": 0,
-            "big_box": 0,
-            "client_id": 1001,
-            "create_time": "2016-10-11 11:5726",
-            "index": 2076,
-            "is_active": "YES",
-            "last_update_time": "",
-            "modified_comments": "",
-            "modified_time": "",
-            "regular_box": 0,
-            "req": 0
-          },
-          {
-            "client_name": "may",
-            "client_type": "doctor",
-            "EDTA": -18,
-            "ESR": 0,
-            "Plasma": 0,
-            "SST": -45,
-            "Urine": 0,
-            "big_box": 0,
-            "client_id": 1003,
-            "create_time": "2016-10-11 11:5726",
-            "index": 2077,
-            "is_active": "YES",
-            "last_update_time": "10/22/16 19:28:13",
-            "modified_comments": "",
-            "modified_time": "",
-            "regular_box": 0,
-            "req": -20
-          },
-          {
-            "client_name": "penny",
-            "client_type": "doctor",
-            "EDTA": 0,
-            "ESR": 0,
-            "Plasma": 0,
-            "SST": 0,
-            "Urine": 0,
-            "big_box": 0,
-            "client_id": 1004,
-            "create_time": "2016-10-11 11:57:26",
-            "index": 2078,
-            "is_active": "YES",
-            "last_update_time": "",
-            "modified_comments": "",
-            "modified_time": "",
-            "regular_box": 0,
-            "req": 0
-          }
-        ],
+        select_ph_num: 0,
         ph_items: [
           { "value": "VA. requisition form"},
           { "value": "VA. requisition form Carbon"},
           { "value": "VG. requisition form"},
           { "value": "VW. requisition form"},
           { "value": "tubes"},
-        ]
-      }
+        ],
+        select_ph_item_arr: [],
+      };
+    },
+    beforeMount(){
+      this.$http.get('/get-clients/').then(function(res){
+        this.searchSuggestions = JSON.parse(res.data);
+      }, function(err){
+        // console.log("fail!");
+        console.log(err)
+      });
     },
     methods: {
-      filterClientType(value, row) {
-        return row.client_type === value;
-      },
-      formatDatetime(row, column) {
-        return row.last_update_time
-      },
-      onSubmit(){
-        console.log("on submit!");
-      },
-      rowClicked(row, event) {
-        console.log(row.client_id)
-        this.dialogFormVisible = !this.dialogFormVisible;
-        this.order.selectClientID = row.client_id;
-        this.order.selectClientType = row.client_type;
-        this.order.selectClientName = row.client_name;
-        delete this.singleSelection;
-        // this.openModal(row)
-      },
       querySearch(queryString, cb) {
-        console.log("ph_items: ", this.ph_items);
         var ph_items = this.ph_items;
         var results = queryString ? ph_items.filter(this.createFilter(queryString)) : ph_items;
-        // 调用 callback 返回建议列表的数据
-        console.log("results", results);
         cb(results);
       },
       createFilter(queryString) {
@@ -448,7 +343,6 @@
       addPHItem() {
         let select_ph_item = this.select_ph_item;
         let select_ph_num = this.select_ph_num;
-        console.log("hehe", select_ph_item, select_ph_num);
         this.select_ph_item_arr.push({
           "item_name": select_ph_item,
           "item_number": select_ph_num
@@ -458,7 +352,55 @@
       },
       deletePHItem(item) {
         console.log("ITEM: ", item);
-      }
+      },
+      onSubmit() {
+        let self = this;
+        self.$http.post('/place-client-order-inventory/', {order: self.order}).then(function(res){
+          console.log("res is: ", res);
+        });
+      },
+      placeOrder() {
+        this.dialogFormVisible = true;
+        this.order.selectClientID = this.clientCurrentStatus.client_id;
+        this.order.selectClientType = this.clientCurrentStatus.client_type;
+        this.order.selectClientName = this.clientCurrentStatus.client_name;
+      },
+      querySearchClient(queryString, cb) {
+        var searchSuggestions = this.searchSuggestions;
+        var results = queryString ? searchSuggestions.filter(this.createFilterClient(queryString)) : searchSuggestions;
+        cb(results);
+      },
+      createFilterClient(queryString) {
+        return (searchSuggestions) => {
+          let isName = (searchSuggestions.client_name.indexOf(queryString.toUpperCase()) === 0);
+          let isID = (searchSuggestions.client_id.indexOf(queryString.toUpperCase()) === 0);
+          return isName | isID
+        };
+      },
+      handleSelectClient(item) {
+        var self = this;
+        self.displayClientStatus = true;
+        console.log("hahahaha", item.client_id);
+        self.$http.post('/get-client_inventory/', {client_id: item.client_id}).then(function(res){
+          console.log("res is: ", res);
+          let data = JSON.parse(res.data);
+          self.clientCurrentStatus.client_id = data.client_id;
+          self.clientCurrentStatus.EDTA = data.EDTA;
+          self.clientCurrentStatus.SST = data.SST;
+          self.clientCurrentStatus.Plasma = data.Plasma;
+          self.clientCurrentStatus.Urine = data.Urine;
+          self.clientCurrentStatus.regular_box = data.regular_box;
+          self.clientCurrentStatus.big_box = data.big_box;
+          self.clientCurrentStatus.req = data.req;
+          self.clientCurrentStatus.last_update_time = data.last_update_time;
+          self.clientCurrentStatus.client_name = data.client_name;
+          self.clientCurrentStatus.client_type = data.client_type;
+          self.clientCurrentStatus.client_practice_name = data.client_practice_name;
+          self.clientCurrentStatus.client_address = data.client_address;
+        }, function(err){
+          console.log(err)
+        });
+      },
     },
   }
 </script>

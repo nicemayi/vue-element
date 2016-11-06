@@ -10,20 +10,21 @@
 
 <template>
   <div class="container-fluid" id="main_div" align="center">
-    <el-tabs style="width: 1800px;">
+    <el-tabs style="width: 100%;">
       <el-tab-pane label="Pending Orders">
         <div id="search_div" class="container-fluid" align="left">
           <el-input id="search_client"
             placeholder="search..."
             v-model="searchText"
-            style="width: 200px;">
+            style="width: 10%;">
           </el-input>
         </div>
         <el-table
           :data="filteredTableData"
           @select="selectOneRowPending"
           @select-all="selectAllRowPending"
-          @cell-click="cellClicked">
+          @cell-click="cellClicked"
+          height="620">
           <el-table-column
             type="selection"
             width="50">
@@ -42,16 +43,16 @@
             label="Client Name">
           </el-table-column>
           <el-table-column
-            property="po_created_time"
+            property="client_practice_name"
+            label="Client Practice Name">
+          </el-table-column>
+          <el-table-column
+            property="po_create_time"
             label="PO Created Time">
           </el-table-column>
           <el-table-column
-            property="po_created_by"
+            property="po_create_by"
             label="PO Created By">
-          </el-table-column>
-          <el-table-column
-            property="req"
-            label="Requisition Form">
           </el-table-column>
           <el-table-column
             property="shipping_method"
@@ -123,7 +124,7 @@
       </span>
     </div>
 
-    <el-dialog title="收货地址" v-model="dialogFormVisible">
+    <el-dialog top= "5%" title="收货地址" v-model="dialogFormVisible">
       <el-table :data="tableData">
         <el-table-column property="date" label="日期" width="150"></el-table-column>
         <el-table-column property="name" label="姓名" width="200"></el-table-column>
@@ -139,17 +140,32 @@
 
 <script>
   export default {
+    beforeMount: function() {
+      var self = this;
+      self.$http.get('/shipping-order-status/').then(function(res){
+        self.tableData = JSON.parse(res.data);
+        console.log("res: ", res)
+        console.log("res.data: ", res.data)
+      }, function(err){
+        console.log(err)
+      });
+    },
     computed: {
       filteredTableData: function () {
         var self = this;
-        return self.tableData.filter(function (eachRow) {
+        let pending_table_data = self.tableData.filter(function(eachRow) {
+          return (!eachRow.po_verified_time) && (!eachRow.po_verified_by) && (!eachRow.po_delete_time) && (!eachRow.po_delete_by)
+        });
+        return pending_table_data.filter(function (eachRow) {
           let row_str = [
             eachRow.po_number,
             eachRow.client_id,
             eachRow.client_name,
-            eachRow.po_created_time,
-            eachRow.po_created_by,
+            eachRow.client_practice_name,
             eachRow.client_address,
+            eachRow.po_create_time,
+            eachRow.po_create_by,
+            eachRow.shipping_method,
           ].join(' ');
           return row_str.includes(self.searchText);
         })
@@ -160,109 +176,7 @@
         searchText: '',
         multipleSelection: [],
         dialogFormVisible: false,
-        tableData: [
-          {
-            po_number: '11111',
-            client_id: '1003',
-            client_name: 'haha',
-            po_created_time: '10/21/05 18:30:00',
-            po_created_by: 'zhe',
-            is_packed: false,
-            is_verified: false,
-            client_address: "123, main st, Cupertino",
-            SST_only: 0,
-            SST_and_EDTA: 1,
-            standard_tube_set: 2,
-            set_all_ha: 3,
-            set_all: 10,
-            regular_box: 100,
-            big_box: 200,
-            req: 300,
-            shipping_method: "ground",
-            comments: 'haha in comments',
-            ph_comments: 'haha in ph comments'
-          }, {
-            po_number: '22222',
-            client_id: '1003',
-            client_name: 'haha',
-            po_created_time: '10/21/05 18:30:00',
-            po_created_by: 'zhe',
-            is_packed: false,
-            is_verified: false,
-            client_address: "123, main st, Cupertino",
-            SST_only: 0,
-            SST_and_EDTA: 1,
-            standard_tube_set: 2,
-            set_all_ha: 3,
-            set_all: 10,
-            regular_box: 100,
-            big_box: 200,
-            req: 300,
-            shipping_method: "ground",
-            comments: 'haha in comments',
-            ph_comments: 'haha in ph comments'
-          }, {
-            po_number: '33333',
-            client_id: '1003',
-            client_name: 'haha',
-            po_created_time: '10/21/05 18:30:00',
-            po_created_by: 'zhe',
-            is_packed: false,
-            is_verified: false,
-            client_address: "123, main st, Cupertino",
-            SST_only: 0,
-            SST_and_EDTA: 1,
-            standard_tube_set: 2,
-            set_all_ha: 3,
-            set_all: 10,
-            regular_box: 100,
-            big_box: 200,
-            req: 300,
-            shipping_method: "ground",
-            comments: 'haha in comments',
-            ph_comments: 'haha in ph comments'
-          }, {
-            po_number: '44444',
-            client_id: '1003',
-            client_name: 'haha',
-            po_created_time: '10/21/05 18:30:00',
-            po_created_by: 'zhe',
-            is_packed: false,
-            is_verified: false,
-            client_address: "123, main st, Cupertino",
-            SST_only: 0,
-            SST_and_EDTA: 1,
-            standard_tube_set: 2,
-            set_all_ha: 3,
-            set_all: 10,
-            regular_box: 100,
-            big_box: 200,
-            req: 300,
-            shipping_method: "ground",
-            comments: 'haha in comments',
-            ph_comments: 'haha in ph comments'
-          }, {
-            po_number: '55555',
-            client_id: '1003',
-            client_name: 'haha',
-            po_created_time: '10/21/05 18:30:00',
-            po_created_by: 'zhe',
-            is_packed: false,
-            is_verified: false,
-            client_address: "123, main st, Cupertino",
-            SST_only: 0,
-            SST_and_EDTA: 1,
-            standard_tube_set: 2,
-            set_all_ha: 3,
-            set_all: 10,
-            regular_box: 100,
-            big_box: 200,
-            req: 300,
-            shipping_method: "ground",
-            comments: 'haha in comments',
-            ph_comments: 'haha in ph comments'
-          }
-        ],
+        tableData: [],
         tableData3: [
           {
             po_number: '111111',

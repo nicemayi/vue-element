@@ -14,9 +14,12 @@ import ClientShippingPendingTable from './components/ClientShippingPendingTable.
 import ClientInventoryTable from './components/ClientInventoryTable.vue'
 import Receive from './components/Receive.vue'
 import ElementForm from './components/ElementForm.vue'
+import VueResource from 'vue-resource'
 
-import testTable from './components/testTable.vue'
+// import test from './test'
 
+console.log(test)
+Vue.use(VueResource);
 
 var Sugar = require('sugar');
 
