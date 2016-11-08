@@ -1,11 +1,4 @@
 <style>
-  #main_div {
-    margin-top: 20px;
-    width: 96%;
-  }
-  #search_div {
-    margin-bottom: 10px;
-  }
 </style>
 
 <template>
@@ -19,15 +12,24 @@
             style="width: 10%;">
           </el-input>
         </div>
+        <br/>
         <el-table
-          :data="filteredTableData"
+          :data="filteredPendingTableData"
           @select="selectOneRowPending"
           @select-all="selectAllRowPending"
-          @cell-click="cellClicked"
           height="620">
           <el-table-column
             type="selection"
             width="50">
+          </el-table-column>
+          <el-table-column
+            prop="tag"
+            label="Tag"
+            width="100"
+            :filters="[{ text: 'Packed', value: 'Packed' }, { text: 'Unpacked', value: 'Unpacked' }]"
+            :filter-method="filterTag"
+            inline-template>
+            <el-tag :type="row.tag === 'Packed' ? 'primary' : 'success'" close-transition>{{row.tag}}</el-tag>
           </el-table-column>
           <el-table-column
             property="po_number"
@@ -60,20 +62,37 @@
           </el-table-column>
           <el-table-column
             prop="tag"
-            width="100"
+            label="Check Order Detail"
             inline-template>
-            <el-button type="primary" icon="delete" size="small" @click="deleteMe(row)"></el-button>
+            <el-button type="primary" icon="edit" size="small" @click="clickCheckOrderCell(row)">Check Order</el-button>
+          </el-table-column>
+          <el-table-column
+            prop="tag"
+            label="Delete Order"
+            inline-template>
+            <el-button type="danger" icon="delete" size="small" @click="clickDeleteOrderCell(row)">Delete Order</el-button>
           </el-table-column>
         </el-table>
+
+        <hr/>
+        <div class="block" align="left">
+          <span class="wrapper">
+            <el-button type="success" :disabled="multipleSelection.length == 0" @click="packOrder">Pack Order</el-button>
+            <el-button type="warning" :disabled="multipleSelection.length == 0">Verify Order</el-button>
+            <el-button type="danger" :disabled="multipleSelection.length == 0">Print Order Details</el-button>
+          </span>
+        </div>
+
       </el-tab-pane>
       <el-tab-pane label="Completed Order">
         <div class="container-fluid" align="left">
           <el-input id="search_client"
             placeholder="search..."
             v-model="searchText"
-            style="width: 200px;">
+            style="width: 10%;">
           </el-input>
         </div>
+        <br/>
         <el-table
           :data="tableData3"
           @select="selectOneRowCompleted"
@@ -112,24 +131,94 @@
             label="Shipping Method">
           </el-table-column>
         </el-table>
+
+        <hr/>
+        <div class="block" align="left">
+          <span class="wrapper">
+            <el-button type="danger" :disabled="multipleSelectionComplete.length == 0">Print Order Details</el-button>
+          </span>
+        </div>
+
       </el-tab-pane>
     </el-tabs>
 
-    <hr/>
-    <div class="block" align="left">
-      <span class="wrapper">
-        <el-button type="success" :disabled="multipleSelection.length == 0">Pack Order</el-button>
-        <el-button type="warning" :disabled="multipleSelection.length == 0">Verify Order</el-button>
-        <el-button type="danger" :disabled="multipleSelection.length == 0">Print Order Details</el-button>
-      </span>
-    </div>
 
-    <el-dialog top= "5%" title="收货地址" v-model="dialogFormVisible">
-      <el-table :data="tableData">
-        <el-table-column property="date" label="日期" width="150"></el-table-column>
-        <el-table-column property="name" label="姓名" width="200"></el-table-column>
-        <el-table-column property="address" label="地址"></el-table-column>
-      </el-table>
+
+    <el-dialog top= "5%" title="Order Details" v-model="dialogCheckOrder">
+      <div align="left">
+        <table class="table">
+          <tbody>
+            <tr>
+              <td><b>PO Number</b></td>
+              <td>{{this.selectedRow.po_number}}</td>
+            </tr>
+            <tr>
+              <td><b>Client ID</b></td>
+              <td>{{this.selectedRow.client_id}}</td>
+            </tr>
+            <tr>
+              <td><b>Client Name</b></td>
+              <td>{{this.selectedRow.client_name}}</td>
+            </tr>
+            <tr>
+              <td><b>Client Practice Name</b></td>
+              <td>{{this.selectedRow.client_practice_name}}</td>
+            </tr>
+            <tr>
+              <td><b>Client Address</b></td>
+              <td>{{this.selectedRow.client_address}}</td>
+            </tr>
+            <tr>
+              <td><b>Shipping Method</b></td>
+              <td>{{this.selectedRow.shipping_method}}</td>
+            </tr>
+            <tr>
+              <td><b>Serum Tube Only</b></td>
+              <td>{{this.selectedRow.serum_tube_only}}</td>
+            </tr>
+            <tr>
+              <td><b>Serum and EDTA Tube</b></td>
+              <td>{{this.selectedRow.serum_and_EDTA_tube}}</td>
+            </tr>
+            <tr>
+              <td><b>Standard Package</b></td>
+              <td>{{this.selectedRow.standard}}</td>
+            </tr>
+            <tr>
+              <td><b>All-Tube Package</b></td>
+              <td>{{this.selectedRow.all_tube}}</td>
+            </tr>
+            <tr>
+              <td><b>Regular Box</b></td>
+              <td>{{this.selectedRow.regular_box}}</td>
+            </tr>
+            <tr>
+              <td><b>Big Box</b></td>
+              <td>{{this.selectedRow.big_box}}</td>
+            </tr>
+            <tr>
+              <td><b>Plasma</b></td>
+              <td>2</td>
+            </tr>
+            <tr>
+              <td><b>PO Create By</b></td>
+              <td>{{this.selectedRow.po_created_by}}</td>
+            </tr>
+            <tr>
+              <td><b>Is packed already</b></td>
+              <td>{{this.selectedRow.tag}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="Warning" v-model="dialogDeleteOrder" size="tiny">
+      <span>Are you sure you want to delete order with PO. number 999999 ?</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click.native="dialogDeleteOrder = false">Cancel</el-button>
+        <el-button type="primary" @click.native="deleteMe">Confirm</el-button>
+      </span>
     </el-dialog>
 
   </div>
@@ -139,19 +228,27 @@
 </template>
 
 <script>
+
+  import {printer} from '../qz/printer.js'
+
   export default {
     beforeMount: function() {
       var self = this;
+
+      self.$http.get('/who/').then(function(res){
+        self.current_loggin_user = JSON.parse(res.data);
+      }, function(err){
+        console.log(err)
+      });
+
       self.$http.get('/shipping-order-status/').then(function(res){
         self.tableData = JSON.parse(res.data);
-        console.log("res: ", res)
-        console.log("res.data: ", res.data)
       }, function(err){
         console.log(err)
       });
     },
     computed: {
-      filteredTableData: function () {
+      filteredPendingTableData: function () {
         var self = this;
         let pending_table_data = self.tableData.filter(function(eachRow) {
           return (!eachRow.po_verified_time) && (!eachRow.po_verified_by) && (!eachRow.po_delete_time) && (!eachRow.po_delete_by)
@@ -173,9 +270,13 @@
     },
     data() {
       return {
+        current_loggin_user: '',
         searchText: '',
         multipleSelection: [],
-        dialogFormVisible: false,
+        multipleSelectionComplete: [],
+        dialogCheckOrder: false,
+        dialogDeleteOrder: false,
+        selectedRow: {},
         tableData: [],
         tableData3: [
           {
@@ -286,48 +387,67 @@
 
     },
     methods: {
+      packOrder: function() {
+        let self = this;
+        let po_numbers = [];
+        for (let i=0; i<self.multipleSelection.length; i++) {
+          po_numbers.push(self.multipleSelection[i].po_number);
+        }
+        self.$http.post('/get-order-labels/', {po_numbers: po_numbers}).then(function(res){
+          let label_arr = JSON.parse(res.data);
+          printer(label_arr);
+        }, function(err){
+          console.log(err)
+        });
+      },
       formatter(row, column) {
         return row.address;
       },
-      cellClicked() {
-        // this.dialogFormVisible = !this.dialogFormVisible;
+      filterTag(value, row) {
+        return row.tag === value;
       },
       selectOneRowPending(selection, row) {
-        console.log("pending hehe");
-        console.log(selection.length);
+        for (let i=0; i<selection.length; i++) {
+          console.log("In single: selection[i].po_number: ", selection[i].po_number);
+        }
+        console.log("---------------------------------------")
+        // console.log("selection: ", selection);
         this.multipleSelection = selection;
       },
       selectAllRowPending(selection) {
-        console.log("pending haha")
+        for (let i=0; i<selection.length; i++) {
+          console.log("In all: selection[i].po_number: ", selection[i].po_number);
+        }
+        console.log("+++++++++++++++++++++++++++++++++++++++++++");
+        // console.log("pending haha")
         this.multipleSelection = selection;
-        console.log("this.multipleSelection: ", this.multipleSelection);
+        // console.log("this.multipleSelection: ", this.multipleSelection);
       },
       selectOneRowCompleted(selection, row) {
         console.log("complete hehe");
         console.log(selection.length);
+        console.log(selection.length);
+        this.multipleSelectionComplete = selection;
       },
       selectAllRowCompleted(selection) {
         console.log("complete haha")
         console.log(selection.length);
+        this.multipleSelectionComplete = selection;
       },
-      cellClicked(row, column, cell, event) {
-        // console.log("cell.className: ", cell.className)
-        if ((cell.className != 'el-table_1_column_1') && (cell.className != 'el-table_1_column_9')) {
-          console.log("row: ", row)
-          console.log("column: ", column)
-          console.log("cell: ", cell.className)
-          console.log("event: ", event)
-          console.log("row clicked!");
-          this.dialogFormVisible = !this.dialogFormVisible;
-          // alert("haha");
-        }
+      clickCheckOrderCell(row) {
+          this.dialogCheckOrder = !this.dialogCheckOrder;
+          this.selectedRow = row;
+          // console.log(this.selectedRow.po_number)
       },
-      deleteMe (row) {
-        // console.log(a);
-        // tableData
+      clickDeleteOrderCell(row) {
+          this.dialogDeleteOrder = !this.dialogDeleteOrder;
+          this.selectedRow = row;
+      },
+      deleteMe() {
+        let row = this.selectedRow;
         this.tableData.remove(function(el) { return el.po_number === row.po_number; });
         this.multipleSelection.remove(function(el) { return el.po_number === row.po_number; });
-        console.log("po number is: ", row.po_number);
+        this.dialogDeleteOrder = false;
       }
     }
   }

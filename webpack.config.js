@@ -13,6 +13,8 @@ module.exports = {
   },
   module: {
     loaders: [
+    { test: /\.json?$/, loader: 'json-loader' }, 
+    // {test: /\.js$/, exclude: /node_modules/, loader: 'babel?presets[]=es2015' }
       {
         test: /\.vue$/,
         loader: 'vue'
@@ -20,7 +22,8 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel',
-        exclude: /node_modules/
+        exclude: /node_modules/,
+        loader: 'babel?presets[]=es2015'
       },
       {
         test: /\.css$/,
@@ -59,6 +62,7 @@ if (process.env.NODE_ENV === 'production') {
       compress: {
         warnings: false
       }
-    })
+    }),
+    // new webpack.IgnorePlugin(/vertx/),
   ])
 }
