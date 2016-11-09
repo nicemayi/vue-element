@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import Vue from 'vue/dist/vue.js'
 import Router from 'vue-router';
 
 
@@ -39,8 +39,3 @@ new Vue({
   render: h => h(App),
   router: router
 })
-
-
-
-
-
