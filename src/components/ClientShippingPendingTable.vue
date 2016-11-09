@@ -257,12 +257,12 @@
           let row_str = [
             eachRow.po_number,
             eachRow.client_id,
-            eachRow.client_name,
-            eachRow.client_practice_name,
-            eachRow.client_address,
+            eachRow.client_name.toLowerCase(),
+            eachRow.client_practice_name.toLowerCase(),
+            eachRow.client_address.toLowerCase(),
             eachRow.po_create_time,
-            eachRow.po_create_by,
-            eachRow.shipping_method,
+            eachRow.po_create_by.toLowerCase(),
+            eachRow.shipping_method.toLowerCase(),
           ].join(' ');
           return row_str.includes(self.searchText);
         })

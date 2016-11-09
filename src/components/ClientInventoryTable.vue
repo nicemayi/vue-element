@@ -319,6 +319,7 @@
       };
     },
     beforeMount(){
+      console.log("current_loggin_user: ", this.$parent.current_loggin_user);
       this.$http.get('/get-clients/').then(function(res){
         this.searchSuggestions = JSON.parse(res.data);
       }, function(err){

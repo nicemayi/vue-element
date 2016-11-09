@@ -13,17 +13,12 @@
     <el-menu theme="dark" default-active="1" class="el-menu-demo" mode="horizontal">
       <el-row type="flex" class="row-bg" justify="space-between">
         <el-col :span="6">
-          <router-link to="/">
-            <el-menu-item index="1">
-              Home
-            </el-menu-item>
-          </router-link>
           <router-link to="/shipping-pending">
             <el-menu-item index="2">
               Shipping Status
             </el-menu-item>
           </router-link>
-          <router-link to="/status">
+          <router-link :to="{path: '/status', params: {current_loggin_user: current_loggin_user}}">
             <el-menu-item index="3">Client Inventory</el-menu-item>
           </router-link>
         </el-col>
@@ -67,7 +62,6 @@
     data () {
       return {
         current_loggin_user: '',
-
         login_form: {
           input_username: '',
           input_password: ''
@@ -79,9 +73,11 @@
       self.$http.get('/who/').then(function(res){
         console.log(res.data);
         let res_data = res.data;
-        if (res_data != '') {
+        if (res_data != 'ERROR') {
           self.current_loggin_user = res_data;
+          console.log("-----------------------------");
           console.log(self.current_loggin_user);
+          console.log("-----------------------------");
         }
       }, function(err){
         console.log(err)
@@ -90,8 +86,11 @@
     methods: {
       auth_user() {
         var self = this;
-        self.$http.post('/validate-user/', {login_form}).then(function(res){
+        let login_form = self.login_form;
+        console.log("self.login_form:", login_form.input_username)
+        self.$http.post('/validate-user/', {login_form: login_form}).then(function(res){
           let res_data = res.data;
+          console.log("res_data: ", res_data);
           if (res_data == 'success') {
             self.current_loggin_user = login_form.input_username;
           }

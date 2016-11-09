@@ -30,7 +30,7 @@ Vue.use(Sugar);
 const router = new Router({
   routes: [
     { path: '/shipping-pending', component: ClientShippingPendingTable },
-    { path: '/status', component: ClientInventoryTable }
+    { path: '/status', component: ClientInventoryTable}
   ]
 })
 
