@@ -9,7 +9,7 @@
   <div class="container-fluid" id="main_div">
     <el-tabs style="width: 100%;">
       <el-tab-pane label="Place Doctor/Phlebotomist Order">
-        <div class="row">
+        <div class="row row-eq-height">
           <div class="col-md-3 col-sm-4 col-xm-6">
             <div class="panel panel-danger">
               <div class="panel-heading">Client Information</div>
