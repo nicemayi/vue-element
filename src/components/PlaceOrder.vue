@@ -84,21 +84,21 @@
                 <div>
                   <h4>What's inside each regular box?</h4>
                   <br/>
-                  <el-form label-position="left" label-width="180px">
+                  <el-form label-position="right">
                     <el-form-item label="Serum Tube Only">
-                      <el-input-number v-model="client_order.ReBox_SST"></el-input-number>
+                      <el-input-number v-model="client_order.ReBox_SST" style="width: 50%; float:right;"></el-input-number>
                     </el-form-item>
                     <el-form-item label="Serum and EDTA Tube">
-                      <el-input-number v-model="client_order.ReBox_SST_EDTA"></el-input-number>
+                      <el-input-number v-model="client_order.ReBox_SST_EDTA" style="width: 50%; float:right;"></el-input-number>
                     </el-form-item>
                     <el-form-item label="Standard">
-                      <el-input-number v-model="client_order.ReBox_Stand"></el-input-number>
+                      <el-input-number v-model="client_order.ReBox_Stand" style="width: 50%; float:right;"></el-input-number>
                     </el-form-item>
                     <el-form-item label="All HA">
-                      <el-input-number v-model="client_order.ReBox_ALL_HA"></el-input-number>
+                      <el-input-number v-model="client_order.ReBox_ALL_HA" style="width: 50%; float:right;"></el-input-number>
                     </el-form-item>
                     <el-form-item label="All">
-                      <el-input-number v-model="client_order.ReBox_ALL"></el-input-number>
+                      <el-input-number v-model="client_order.ReBox_ALL" style="width: 50%; float:right;"></el-input-number>
                     </el-form-item>
                   </el-form>
                 </div>
@@ -109,27 +109,27 @@
             <div class="panel panel-primary">
               <div class="panel-heading">Tube Sets</div>
               <div class="panel-body">
-                <el-form label-position="left" label-width="180px">
+                <el-form label-position="right">
                   <el-form-item label="Serum">
-                    <el-input-number v-model="client_order.Serum_Tube_Pack"></el-input-number>
+                    <el-input-number v-model="client_order.Serum_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
                   <el-form-item label="EDTA">
-                    <el-input-number v-model="client_order.EDTA_Tube_Pack"></el-input-number>
+                    <el-input-number v-model="client_order.EDTA_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
                   <el-form-item label="Plasma">
-                    <el-input-number v-model="client_order.Plasma_Tube_Pack"></el-input-number>
+                    <el-input-number v-model="client_order.Plasma_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
                   <el-form-item label="Urine">
-                    <el-input-number v-model="client_order.Urine_Tube_Pack"></el-input-number>
+                    <el-input-number v-model="client_order.Urine_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
                   <el-form-item label="ESR">
-                    <el-input-number v-model="client_order.ESR_Tube_Pack"></el-input-number>
+                    <el-input-number v-model="client_order.ESR_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
                   <el-form-item label="Transfer">
-                    <el-input-number v-model="client_order.Transfer_Tube_Pack"></el-input-number>
+                    <el-input-number v-model="client_order.Transfer_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
                   <el-form-item label="Bags">
-                    <el-input-number v-model="client_order.Bags_Pack"></el-input-number>
+                    <el-input-number v-model="client_order.Bags_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
                 </el-form>
               </div>
@@ -256,21 +256,21 @@
                 <div>
                   <h4>What's inside each regular box?</h4>
                   <br/>
-                  <el-form label-position="left" label-width="180px">
+                  <el-form label-position="left">
                     <el-form-item label="Serum Tube Only">
-                      <el-input-number v-model="patient_order.ReBox_SST"></el-input-number>
+                      <el-input-number v-model="patient_order.ReBox_SST" style="width: 50%; float:right;"></el-input-number>
                     </el-form-item>
                     <el-form-item label="Serum and EDTA Tube">
-                      <el-input-number v-model="patient_order.ReBox_SST_EDTA"></el-input-number>
+                      <el-input-number v-model="patient_order.ReBox_SST_EDTA" style="width: 50%; float:right;"></el-input-number>
                     </el-form-item>
                     <el-form-item label="Standard">
-                      <el-input-number v-model="patient_order.ReBox_Stand"></el-input-number>
+                      <el-input-number v-model="patient_order.ReBox_Stand" style="width: 50%; float:right;"></el-input-number>
                     </el-form-item>
                     <el-form-item label="All HA">
-                      <el-input-number v-model="patient_order.ReBox_ALL_HA"></el-input-number>
+                      <el-input-number v-model="patient_order.ReBox_ALL_HA" style="width: 50%; float:right;"></el-input-number>
                     </el-form-item>
                     <el-form-item label="All">
-                      <el-input-number v-model="patient_order.ReBox_ALL"></el-input-number>
+                      <el-input-number v-model="patient_order.ReBox_ALL" style="width: 50%; float:right;"></el-input-number>
                     </el-form-item>
                   </el-form>
                 </div>
@@ -281,27 +281,27 @@
             <div class="panel panel-primary">
               <div class="panel-heading">Tube Sets</div>
               <div class="panel-body">
-                <el-form label-position="left" label-width="180px">
+                <el-form label-position="left">
                   <el-form-item label="Serum">
-                    <el-input-number v-model="patient_order.Serum_Tube_Pack"></el-input-number>
+                    <el-input-number v-model="patient_order.Serum_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
                   <el-form-item label="EDTA">
-                    <el-input-number v-model="patient_order.EDTA_Tube_Pack"></el-input-number>
+                    <el-input-number v-model="patient_order.EDTA_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
                   <el-form-item label="Plasma">
-                    <el-input-number v-model="patient_order.Plasma_Tube_Pack"></el-input-number>
+                    <el-input-number v-model="patient_order.Plasma_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
                   <el-form-item label="Urine">
-                    <el-input-number v-model="patient_order.Urine_Tube_Pack"></el-input-number>
+                    <el-input-number v-model="patient_order.Urine_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
                   <el-form-item label="ESR">
-                    <el-input-number v-model="patient_order.ESR_Tube_Pack"></el-input-number>
+                    <el-input-number v-model="patient_order.ESR_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
                   <el-form-item label="Transfer">
-                    <el-input-number v-model="patient_order.Transfer_Tube_Pack"></el-input-number>
+                    <el-input-number v-model="patient_order.Transfer_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
                   <el-form-item label="Bags">
-                    <el-input-number v-model="patient_order.Bags_Pack"></el-input-number>
+                    <el-input-number v-model="patient_order.Bags_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
                 </el-form>
               </div>
@@ -400,6 +400,15 @@
     }
   });
 
+  function validatePhoneNumber(phone_number) {
+    let phone_re = /^\D?(\d{3})\D?\D?(\d{3})\D?(\d{4})$/;
+    return phone_re.test(phone_number)
+  }
+  function validateZipcode(zipcode) {
+    let zipcode_re =/^[0-9]{5}$/;
+    return zipcode_re.test(zipcode);
+  }
+
   export default {
     computed: {
       isValidClientOrder: function() {
@@ -427,15 +436,12 @@
         if (!cond_patient_info) {
           return false;
         }
-        if (this.patient_order.patient_phone_number.length != 10) {
-          return false;
-        }
-        let cond_shipping_method = (this.patient_order.shipping_method != '');
-        if (!cond_shipping_method) {
-          return false;
-        }
-        let cond_patient_order = ((this.patient_order.ReBox_ALL + this.patient_order.ReBox_Stand + this.patient_order.ReBox_SST_EDTA + this.patient_order.ReBox_SST + this.patient_order.ReBox_ALL_HA + this.patient_order.regular_box + this.patient_order.big_box + this.patient_order.Transfer_Tube_Pack + this.patient_order.Plasma_Tube_Pack + this.patient_order.Urine_Tube_Pack + this.patient_order.Serum_Tube_Pack + this.patient_order.ESR_Tube_Pack + this.patient_order.EDTA_Tube_Pack + this.patient_order.Bags_Pack == 0) && (this.patient_select_ph_item_arr) && (this.patient_select_ph_item_arr.length > 0));
-        if (!cond_patient_order) {
+        let cond_patient_order = (this.patient_order.ReBox_ALL + this.patient_order.ReBox_Stand + this.patient_order.ReBox_SST_EDTA + this.patient_order.ReBox_SST + this.patient_order.ReBox_ALL_HA + this.patient_order.regular_box + this.patient_order.big_box + this.patient_order.Transfer_Tube_Pack + this.patient_order.Plasma_Tube_Pack + this.patient_order.Urine_Tube_Pack + this.patient_order.Serum_Tube_Pack + this.patient_order.ESR_Tube_Pack + this.patient_order.EDTA_Tube_Pack + this.patient_order.Bags_Pack + this.patient_select_ph_item_arr.length) == 0;
+        // console.log("this.patient_select_ph_item_arr.length: ", this.patient_select_ph_item_arr.length);
+        // console.log((this.patient_order.ReBox_ALL + this.patient_order.ReBox_Stand + this.patient_order.ReBox_SST_EDTA + this.patient_order.ReBox_SST + this.patient_order.ReBox_ALL_HA + this.patient_order.regular_box + this.patient_order.big_box + this.patient_order.Transfer_Tube_Pack + this.patient_order.Plasma_Tube_Pack + this.patient_order.Urine_Tube_Pack + this.patient_order.Serum_Tube_Pack + this.patient_order.ESR_Tube_Pack + this.patient_order.EDTA_Tube_Pack + this.patient_order.Bags_Pack + this.patient_select_ph_item_arr.length));
+
+        console.log("cond_patient_order: ", cond_patient_order)
+        if (cond_patient_order) {
           return false;
         }
         return true;
@@ -608,6 +614,34 @@
         for (let i=0; i < self.patient_select_ph_item_arr.length; i++) {
           self.patient_order.phlebotomy_supplies[self.patient_select_ph_item_arr[i].item_name] = self.patient_select_ph_item_arr[i].item_number;
         }
+
+        let patient_phone_number = self.patient_order.patient_phone_number;
+        let patient_zipcode = self.patient_order.patient_zipcode;
+        if (!validatePhoneNumber(patient_phone_number)) {
+          self.$message({
+            showClose: true,
+            message: 'Please input correct patient phone number...',
+            type: 'error'
+          });
+          return;
+        }
+        if (!validateZipcode(patient_zipcode)) {
+          self.$message({
+            showClose: true,
+            message: 'Please input correct patient zipcode...',
+            type: 'error'
+          });
+          return;
+        }
+        if (self.patient_order.shipping_method == '') {
+          self.$message({
+            showClose: true,
+            message: 'Please select a shipping-method...',
+            type: 'error'
+          });
+          return;
+        }
+
         self.$http.post('/place-patient-order/', {order: self.patient_order}).then(function(res){
           console.log("res is: ", res);
           self.$message({

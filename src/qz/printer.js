@@ -116,7 +116,7 @@
       }
   }
 
-  var printer = function (label, cb) {
+  var printer = function (label) {
     let printer_name = "ZDesigner GK420d";
     ///////////////////////////////////////////////////////////////
 
@@ -131,7 +131,6 @@
         })
         .then(function(){
           qz.websocket.disconnect();
-          cb();
         })
         .catch(function(e) { console.error(e); qz.websocket.disconnect();});
     } else {

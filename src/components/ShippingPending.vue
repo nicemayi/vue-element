@@ -38,27 +38,43 @@
           </el-table-column>
           <el-table-column
             property="client_id"
-            label="Client ID">
+            label="Client ID"
+            sortable>
           </el-table-column>
           <el-table-column
             property="client_name"
-            label="Client Name">
+            label="Name"
+            sortable>
           </el-table-column>
           <el-table-column
             property="client_practice_name"
-            label="Client Practice Name">
+            label="Practice Name"
+            sortable>
           </el-table-column>
           <el-table-column
             property="po_create_time"
-            label="PO Created Time">
+            label="PO Created Time"
+            sortable>
           </el-table-column>
           <el-table-column
             property="po_create_by"
-            label="PO Created By">
+            label="PO Created By"
+            sortable>
+          </el-table-column>
+          <el-table-column
+            property="po_packed_time"
+            label="PO Packed Time"
+            sortable>
+          </el-table-column>
+          <el-table-column
+            property="po_packed_by"
+            label="PO Packed By"
+            sortable>
           </el-table-column>
           <el-table-column
             property="shipping_method"
-            label="Shipping Method">
+            label="Shipping Method"
+            sortable>
           </el-table-column>
           <el-table-column
             prop="tag"
@@ -102,7 +118,8 @@
         <el-table
           :data="filteredCompleteTableData"
           @select="selectOneRowCompleted"
-          @select-all="selectAllRowCompleted">
+          @select-all="selectAllRowCompleted"
+          height="620">
           <el-table-column
             type="selection"
             width="50">
@@ -125,12 +142,32 @@
             label="Client Practice Name">
           </el-table-column>
           <el-table-column
-            property="po_created_time"
+            property="po_create_time"
             label="PO Created Time">
           </el-table-column>
           <el-table-column
-            property="po_created_by"
+            property="po_create_by"
             label="PO Created By">
+          </el-table-column>
+          <el-table-column
+            property="po_packed_time"
+            label="PO Packed Time"
+            sortable>
+          </el-table-column>
+          <el-table-column
+            property="po_packed_by"
+            label="PO Packed By"
+            sortable>
+          </el-table-column>
+          <el-table-column
+            property="po_verified_time"
+            label="PO Verified Time"
+            sortable>
+          </el-table-column>
+          <el-table-column
+            property="po_verified_by"
+            label="PO Verified By"
+            sortable>
           </el-table-column>
           <el-table-column
             property="shipping_method"
@@ -146,7 +183,7 @@
         <hr/>
         <div class="block" align="left">
           <span class="wrapper">
-            <el-button type="danger" :disabled="multipleSelectionComplete.length == 0" @click="printOrderDetail">Print Order Details</el-button>
+            <el-button type="danger" :disabled="multipleSelectionComplete.length == 0" @click="printOrderDetailComplete">Print Order Details</el-button>
           </span>
         </div>
       </el-tab-pane>
@@ -225,13 +262,14 @@
             eachRow.client_address.toLowerCase(),
             eachRow.po_create_time,
             eachRow.po_create_by.toLowerCase(),
+            eachRow.po_packed_time,
+            eachRow.po_packed_by.toLowerCase(),
             eachRow.shipping_method.toLowerCase(),
           ].join(' ');
           return row_str.includes(self.searchTextUpperCase);
         })
       },
       filteredCompleteTableData: function () {
-        console.log("haha");
         var self = this;
         let complete_table_data = self.completeOrders.filter(function(eachRow) {
           return (eachRow.po_packed_time) && (eachRow.po_packed_by) && (eachRow.po_verified_time) && (eachRow.po_verified_by) && (!eachRow.po_delete_time) && (!eachRow.po_delete_by)
@@ -245,6 +283,10 @@
             eachRow.client_address.toLowerCase(),
             eachRow.po_create_time,
             eachRow.po_create_by.toLowerCase(),
+            eachRow.po_packed_time,
+            eachRow.po_packed_by.toLowerCase(),
+            eachRow.po_verified_time,
+            eachRow.po_verified_by.toLowerCase(),
             eachRow.shipping_method.toLowerCase(),
           ].join(' ');
           return row_str.includes(self.searchTextUpperCaseComplete);
@@ -286,7 +328,6 @@
       addCommentCell(row) {
         let self = this;
         if (self.current_loggin_user != '') {
-          console.log("In dialog, row is: ", row);
           if (row.po_number != '') {
             self.$prompt(`Type in comment for order ${row.po_number}:`, 'Comment', {
               cancelButtonText: "Cancel",
@@ -296,7 +337,6 @@
                 let operator = self.current_loggin_user;
                 let comment = value;
                 let po_number = row.po_number;
-                console.log("In dialog, comment is: ", comment);
                 self.$http.post('/add-comments/', {
                   "operator": operator,
                   "comment": comment,
@@ -315,10 +355,21 @@
       packOrder: function() {
         let self = this;
         let po_numbers = [];
-        for (let i=0; i<self.multipleSelection.length; i++) {
-          po_numbers.push(self.multipleSelection[i].po_number);
-        }
         let operator = self.current_loggin_user;
+        for (let i=0; i<self.multipleSelection.length; i++) {
+
+          let po_create_time = self.multipleSelection[i].po_create_time;
+          let po_create_by = self.multipleSelection[i].po_create_by;
+          let po_packed_by = self.multipleSelection[i].po_packed_by;
+          let po_packed_time= self.multipleSelection[i].po_packed_time;
+          let tag = self.multipleSelection[i].tag;
+
+          if ((po_create_time != '') && (po_create_by != '') && (operator != '') && (po_packed_time == '') && (po_packed_by == '') && (tag == 'Unpacked')) {
+            po_numbers.push(self.multipleSelection[i].po_number);
+          }
+
+        }
+
         let type = "pack po";
         self.$http.post('/get-order-labels/', {
           po_numbers, operator, type
@@ -333,58 +384,82 @@
             return;
           }
           printer(label_arr);
-          self.multipleSelection = [];
+          self.multipleSelection.length = 0;
           self.selectedRow = {};
-          loadTable()
+          self.loadTable()
         }, function(err){
           console.log(err);
+          self.multipleSelection.length = 0;
+          self.selectedRow = {};
+          self.loadTable()
         });
 
       },
       verifyOrder: function() {
         let self = this;
         let po_numbers = [];
-        for (let i=0; i<self.multipleSelection.length; i++) {
-          po_numbers.push(self.multipleSelection[i].po_number);
-        }
+        let current_loggin_user = self.current_loggin_user;
         let operator = self.current_loggin_user;
+        for (let i=0; i<self.multipleSelection.length; i++) {
+
+          let po_packed_by = self.multipleSelection[i].po_packed_by;
+          let po_packed_time= self.multipleSelection[i].po_packed_time;
+          let tag = self.multipleSelection[i].tag;
+
+          if ((po_packed_time != '') && (po_packed_by != '') && (current_loggin_user != '') && (current_loggin_user != po_packed_by) && (tag == 'Packed')) {
+            po_numbers.push(self.multipleSelection[i].po_number);
+          }
+        }
         let type = "verify po";
         self.$http.post('/get-order-labels/', {
           po_numbers, operator, type
         }).then(function(res){
-          console.log(res.data);
-          loadTable();
+          self.multipleSelection.length = 0;
+          self.selectedRow = {};
+          self.loadTable()
         }, function(err){
           console.log(err)
+          self.multipleSelection.length = 0;
+          self.selectedRow = {};
+          self.loadTable()
         });
-        self.multipleSelection = [];
-        self.selectedRow = {};
       },
       printOrderDetail: function() {
         let self = this;
         let po_numbers = [];
+        let current_loggin_user = self.current_loggin_user;
+        let operator = self.current_loggin_user;
         for (let i=0; i<self.multipleSelection.length; i++) {
           po_numbers.push(self.multipleSelection[i].po_number);
         }
-        let operator = self.current_loggin_user;
         let type = "package detail print";
         self.$http.post('/get-order-labels/', {
           po_numbers, operator, type
         }).then(function(res){
           let label_arr = JSON.parse(res.data);
+          if (label_arr.length === 0) {
+            this.$message({
+              showClose: true,
+              message: "Failed to print order detail label",
+              type: 'error'
+            });
+            return;
+          }
           printer(label_arr);
+          self.multipleSelection.length = 0;
+          self.selectedRow = {};
+          self.loadTable()
         }, function(err){
-          console.log(err)
+          self.multipleSelection.length = 0;
+          self.selectedRow = {};
+          self.loadTable()
         });
-        self.multipleSelection = [];
-        self.selectedRow = {};
-        loadTable()
       },
       printOrderDetailComplete: function() {
         let self = this;
         let po_numbers = [];
         for (let i=0; i<self.multipleSelectionComplete.length; i++) {
-          po_numbers.push(self.multipleSelection[i].po_number);
+          po_numbers.push(self.multipleSelectionComplete[i].po_number);
         }
         let operator = self.current_loggin_user;
         let type = "package detail print";
@@ -393,11 +468,15 @@
         }).then(function(res){
           let label_arr = JSON.parse(res.data);
           printer(label_arr);
+          self.multipleSelectionComplete.length = 0;
+          self.selectedRow = {};
+          self.loadTable()
         }, function(err){
           console.log(err)
+          self.multipleSelectionComplete.length = 0;
+          self.selectedRow = {};
+          self.loadTable()
         });
-        self.multipleSelectionComplete = [];
-        self.selectedRowComplete = {};
       },
       formatter(row, column) {
         return row.address;
@@ -406,37 +485,20 @@
         return row.tag === value;
       },
       selectOneRowPending(selection, row) {
-        for (let i=0; i<selection.length; i++) {
-          console.log("In single: selection[i].po_number: ", selection[i].po_number);
-        }
-        console.log("---------------------------------------")
-        // console.log("selection: ", selection);
         this.multipleSelection = selection;
       },
-      selectAllRowPending(selection) {
-        for (let i=0; i<selection.length; i++) {
-          console.log("In all: selection[i].po_number: ", selection[i].po_number);
-        }
-        console.log("+++++++++++++++++++++++++++++++++++++++++++");
-        // console.log("pending haha")
-        this.multipleSelection = selection;
-        // console.log("this.multipleSelection: ", this.multipleSelection);
+      selectAllRowPending(selections) {
+        this.multipleSelection = selections;
       },
       selectOneRowCompleted(selection, row) {
-        console.log("complete hehe");
-        console.log(selection.length);
-        console.log(selection.length);
         this.multipleSelectionComplete = selection;
       },
       selectAllRowCompleted(selection) {
-        // console.log("complete haha")
-        console.log(selection.length);
         this.multipleSelectionComplete = selection;
       },
       clickCheckOrderCell(row) {
           this.dialogCheckOrder = !this.dialogCheckOrder;
           this.selectedRow = row;
-          console.log("this.selectedRow :", this.selectedRow )
       },
       clickDeleteOrderCell(row) {
         this.selectedRow = row;
