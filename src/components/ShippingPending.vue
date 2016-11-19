@@ -87,7 +87,7 @@
             label="Add Ship-out Label"
             inline-template
             width="100">
-            <el-button :disabled="false" type="warning" icon="edit" size="mini" @click="addLabel(row)">Add</el-button>
+            <el-button :disabled="!current_loggin_user" type="warning" icon="edit" size="mini" @click="addLabel(row)">Add</el-button>
           </el-table-column>
           <el-table-column
             prop="tag"
@@ -332,12 +332,35 @@
       addLabel(row) {
         let self = this;
         self.selectedRow = row;
-        console.log(self.selectedRow.po_number);
-        self.$message({
-          showClose: true,
-          message: `No such label found for ${self.selectedRow.po_number}`,
-          type: 'error'
-        });
+        let po_number = self.selectedRow.po_number;
+        let add_by = self.current_loggin_user;
+        let LabelType = "OUT";
+        let addLabelRequest = {po_number, add_by, LabelType}
+
+        self.$http.post("/add-shipping-label/", {addLabelRequest}).then(function(res) {
+          let res_data = JSON.parse(res.data);
+          if (res_data.ErrorDetail == '') {
+            self.loadTable();
+            let label_file = res_data.Labels;
+            printer(label_file);
+            self.$notify({
+              title: 'Done',
+              message: `Successfully add print-label for PO ${po_number}`,
+              type: 'success'
+            });
+          } else {
+            self.$notify.error({
+              title: 'Error',
+              message: res_data.ErrorDetail,
+            });
+          }
+        }, function(err) {
+          self.$notify.error({
+            showClose: true,
+            title: 'Error',
+            message: `Server error, please contact Zhe or Ethan.`,
+          });
+        })
       },
       printTrackingID(tracking_id) {
         let self = this;
