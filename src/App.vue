@@ -5,6 +5,9 @@
       font-family: "Lucida Grande", Helvetica, Arial, Verdana, sans-serif;
       font-size: 14px;
   }
+  .router-link-active {
+    color: white !important;
+  }
 </style>
 
 <template>

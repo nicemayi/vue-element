@@ -19,6 +19,8 @@ Vue.use(Sugar);
 
 const router = new VueRouter({
     routes: [
+        // { path: '/', component: ShippingPending },
+        { path: '/', redirect: '/shipping-pending' },
         { path: '/shipping-pending', component: ShippingPending },
         { path: '/place-order', component: PlaceOrder}
     ]
