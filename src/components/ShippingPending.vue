@@ -25,7 +25,6 @@
           <el-table-column
             prop="tag"
             label="Tag"
-            width="100"
             :filters="[{ text: 'Packed', value: 'Packed' }, { text: 'Unpacked', value: 'Unpacked' }]"
             :filter-method="filterTag"
             inline-template>
@@ -79,20 +78,30 @@
           <el-table-column
             prop="tag"
             label="Add Order Comment"
-            inline-template>
+            inline-template
+            width="150">
             <el-button :disabled="!current_loggin_user" type="primary" icon="edit" size="small" @click="addCommentCell(row)">Add Comment</el-button>
           </el-table-column>
           <el-table-column
             prop="tag"
-            label="Check Order Detail"
-            inline-template>
-            <el-button type="primary" icon="edit" size="mini" @click="clickCheckOrderCell(row)">Check Order</el-button>
+            label="Add Ship-out Label"
+            inline-template
+            width="100">
+            <el-button :disabled="false" type="warning" icon="edit" size="mini" @click="addLabel(row)">Add</el-button>
           </el-table-column>
           <el-table-column
             prop="tag"
-            label="Delete Order"
-            inline-template>
-            <el-button :disabled="!current_loggin_user" type="danger" icon="delete" size="small" @click="clickDeleteOrderCell(row)">Delete Order</el-button>
+            label="Check Detail"
+            inline-template
+            width="80">
+            <el-button type="primary" icon="edit" size="mini" @click="clickCheckOrderCell(row)">Check</el-button>
+          </el-table-column>
+          <el-table-column
+            prop="tag"
+            label="Delete"
+            inline-template
+            width="80">
+            <el-button :disabled="!current_loggin_user" type="danger" icon="delete" size="small" @click="clickDeleteOrderCell(row)"></el-button>
           </el-table-column>
         </el-table>
 
@@ -104,6 +113,7 @@
             <el-button type="danger" :disabled="multipleSelection.length == 0" @click="printOrderDetail">Print Order Details</el-button>
           </span>
         </div>
+
 
       </el-tab-pane>
       <el-tab-pane label="Completed Order">
@@ -197,9 +207,18 @@
           <tbody>
             <tr><td><b>PO Number</b></td><td>{{this.selectedRow.po_number}}</td></tr>
             <tr v-for="(value, key) in this.selectedRow.Order_Details">
-              <td><b>{{key.split('_').map(el=>el.toUpperCase()).join(' ')}}</b></td>
+              <td><b>{{key.split('_').map(function(el) {return el.toUpperCase()}).join(' ')}}</b></td>
               <td>{{value}}</td>
             </tr>
+            <hr/>
+            <div v-if="this.selectedRow.tracking_ids && this.selectedRow.tracking_ids.length > 0">
+              <h3>Tracking ID</h3>
+              <el-button-group v-for="each_tracking_id in this.selectedRow.tracking_ids">
+                <el-tooltip class="item" effect="dark" content="Click me to print label" placement="bottom">
+                  <el-button :type="(each_tracking_id.track_id_type == 'OUT')? 'success': 'danger'" style="margin-right: 10px;" @click="printTrackingID(each_tracking_id.tracking_id)">({{each_tracking_id.track_id_type}}) {{each_tracking_id.tracking_id}}</el-button>
+                </el-tooltip>
+              </el-button-group>
+            </div>
             <hr/>
             <div v-if="this.selectedRow.comments && this.selectedRow.comments.length > 0">
               <h3>Comments</h3>
@@ -310,8 +329,43 @@
 
     },
     methods: {
+      addLabel(row) {
+        let self = this;
+        self.selectedRow = row;
+        console.log(self.selectedRow.po_number);
+        self.$message({
+          showClose: true,
+          message: `No such label found for ${self.selectedRow.po_number}`,
+          type: 'error'
+        });
+      },
+      printTrackingID(tracking_id) {
+        let self = this;
+        self.$http.post("/get-tracking-id-label/", {tracking_id}).then(function(res) {
+          let data = res.data;
+          if (data == 'no label') {
+            self.$message({
+              showClose: true,
+              message: `No such label found for ${tracking_id}`,
+              type: 'error'
+            });
+            return;
+          }
+          if (data == 'bad request') {
+            self.$message({
+              showClose: true,
+              message: "Bad request!",
+              type: "error"
+            });
+          }
+          let label = JSON.parse(data).label_file;
+          printer([label]);
+        }, function(err) {
+          console.log(err);
+        })
+      },
       loadTable() {
-        var self = this;
+        let self = this;
         self.$http.get('/shipping-pending-orders/').then(function(res){
           let res_status = res.data.status;
           self.pendingOrders = JSON.parse(res.data);
@@ -412,7 +466,9 @@
         }
         let type = "verify po";
         self.$http.post('/get-order-labels/', {
-          po_numbers, operator, type
+          po_numbers:po_numbers,
+          operator: operator,
+          type: type
         }).then(function(res){
           self.multipleSelection.length = 0;
           self.selectedRow = {};
@@ -499,6 +555,8 @@
       clickCheckOrderCell(row) {
           this.dialogCheckOrder = !this.dialogCheckOrder;
           this.selectedRow = row;
+          console.log(row.tracking_ids);
+          console.log(row.tracking_ids.length);
       },
       clickDeleteOrderCell(row) {
         this.selectedRow = row;

@@ -20,13 +20,6 @@ module.exports = merge(baseWebpackConfig, {
     new webpack.DefinePlugin({
       'process.env': config.dev.env
     }),
-    // new webpack.ProvidePlugin({
-    //     jQuery: 'jquery',
-    //     $: 'jquery',
-    //     jquery: 'jquery',
-    //     _: 'lodash',
-    //     Vue: 'vue'
-    // }),
     // https://github.com/glenjamin/webpack-hot-middleware#installation--usage
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin(),

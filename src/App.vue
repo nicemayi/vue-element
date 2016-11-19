@@ -1,10 +1,4 @@
 <style>
-/*  body {
-    font-family: Helvetica, sans-serif;
-    position: fixed;
-    overflow: hidden;
-    width: 100%;
-  }*/
   body {
       margin: 40px 10px;
       padding: 0;

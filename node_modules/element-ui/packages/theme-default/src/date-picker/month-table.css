@@ -1,14 +1,21 @@
-@import "./vars.css";
+@import "../common/var.css";
 
 @component-namespace el {
   @b month-table {
     font-size: 12px;
     margin: -1px;
+    border-collapse: collapse;
 
     td {
       text-align: center;
       padding: 20px 3px;
       cursor: pointer;
+
+      &.disabled .cell {
+        background-color: #f4f4f4;
+        cursor: not-allowed;
+        color: #ccc;
+      }
 
       .cell {
         width: 48px;

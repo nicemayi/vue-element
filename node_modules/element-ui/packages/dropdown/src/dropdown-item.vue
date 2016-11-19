@@ -1,5 +1,14 @@
 <template>
-  <li class="el-dropdown-item" @click="handleClick"><slot></slot></li>
+  <li
+    class="el-dropdown-menu__item"
+    :class="{
+      'is-disabled': disabled,
+      'el-dropdown-menu__item--divided': divided
+    }"
+    @click="handleClick"
+  >
+    <slot></slot>
+  </li>
 </template>
 <script>
   import Emitter from 'element-ui/src/mixins/emitter';
@@ -9,9 +18,15 @@
 
     mixins: [Emitter],
 
+    props: {
+      command: String,
+      disabled: Boolean,
+      divided: Boolean
+    },
+
     methods: {
       handleClick(e) {
-        this.dispatch('ElDropdown', 'visible', [false]);
+        this.dispatch('ElDropdown', 'menu-item-click', [this.command, this]);
       }
     }
   };

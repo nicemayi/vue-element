@@ -98,3 +98,20 @@ export const getColumnByCell = function(table, cell) {
   }
   return null;
 };
+
+const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+
+export const mousewheel = function(element, callback) {
+  if (element && element.addEventListener) {
+    element.addEventListener(isFirefox ? 'DOMMouseScroll' : 'mousewheel', callback);
+  }
+};
+
+export const getRowIdentity = (row, rowKey) => {
+  if (!row) throw new Error('row is required when get row identity');
+  if (typeof rowKey === 'string') {
+    return row[rowKey];
+  } else if (typeof rowKey === 'function') {
+    return rowKey.call(null, row);
+  }
+};

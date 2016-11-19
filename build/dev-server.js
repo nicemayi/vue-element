@@ -46,7 +46,11 @@ Object.keys(proxyTable).forEach(function (context) {
   }
   app.use(proxyMiddleware(context, options))
 })
-app.use(proxyMiddleware('/client_inventory', {target: 'http://192.168.10.121:5000'}))
+app.use(proxyMiddleware('/shipping-pending-orders/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/who/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/get-tracking-id-label/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/shipping-complete-orders/', {target: 'http://localhost:5000'}))
+
 app.use(proxyMiddleware('/client_info_typeahead', {target: 'http://192.168.10.121:5000'}))
 app.use(proxyMiddleware('/client_order', {target: 'http://192.168.10.121:5000'}))
 app.use(proxyMiddleware('/client-shipping-pending-table/', {target: 'http://localhost:5000'}))
