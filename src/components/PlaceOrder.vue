@@ -392,6 +392,7 @@
       var item = ctx.props.item;
       return h('li', ctx.data, [
         h('h4', { attrs: { class: 'name' } }, [item.client_practice_name]),
+        h('h5', { attrs: { class: 'name' } }, [item.client_name]),
         h('div', { attrs: { class: 'addr' } }, [item.client_id])
       ]);
     },
@@ -765,9 +766,10 @@
       },
       createFilterClient(queryString) {
         return (searchSuggestions) => {
-          let isName = (searchSuggestions.client_name.indexOf(queryString.toUpperCase()) === 0);
-          let isID = (searchSuggestions.client_id.indexOf(queryString.toUpperCase()) === 0);
-          return isName | isID
+          let isName = (searchSuggestions.client_name.includes(queryString.toUpperCase()));
+          let isID = (searchSuggestions.client_id.includes(queryString.toUpperCase()));
+          let isPracticeName = (searchSuggestions.client_practice_name.includes(queryString.toUpperCase()));
+          return isName | isID | isPracticeName
         };
       },
       handleSelect(item) {
@@ -776,6 +778,7 @@
       handleSelectClient(item) {
         let self = this;
         let client_id = item.client_id;
+        console.log(client_id)
         self.$http.post('/get-client-inventory/', {client_id: client_id}).then(function(res){
           console.log("res is: ", res);
           let data = JSON.parse(res.data);

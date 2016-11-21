@@ -51,6 +51,9 @@ app.use(proxyMiddleware('/who/', {target: 'http://localhost:5000'}))
 app.use(proxyMiddleware('/get-tracking-id-label/', {target: 'http://localhost:5000'}))
 app.use(proxyMiddleware('/shipping-complete-orders/', {target: 'http://localhost:5000'}))
 app.use(proxyMiddleware('/add-shipping-label/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/get-clients/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/get-client-inventory/', {target: 'http://localhost:5000'}))
+
 
 app.use(proxyMiddleware('/client_info_typeahead', {target: 'http://192.168.10.121:5000'}))
 app.use(proxyMiddleware('/client_order', {target: 'http://192.168.10.121:5000'}))

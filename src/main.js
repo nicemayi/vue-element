@@ -9,6 +9,7 @@ import 'element-ui/lib/theme-default/index.css'
 
 import ShippingPending from './components/ShippingPending.vue'
 import PlaceOrder from './components/PlaceOrder.vue'
+import ClientInventory from './components/ClientInventory.vue'
 
 Vue.use(VueRouter);
 Vue.use(VueResource);
@@ -22,7 +23,8 @@ const router = new VueRouter({
         // { path: '/', component: ShippingPending },
         { path: '/', redirect: '/shipping-pending' },
         { path: '/shipping-pending', component: ShippingPending },
-        { path: '/place-order', component: PlaceOrder}
+        { path: '/place-order', component: PlaceOrder},
+        { path: '/check-client-inventory', component: ClientInventory}
     ]
 })
 
