@@ -203,6 +203,8 @@
 
     <el-dialog top= "5%" title='Order Details' v-model="dialogCheckOrder">
       <div align="left">
+      <h3>{{this.selectedRow.client_address}}</h3>
+      <hr/>
         <table class="table">
           <tbody>
             <tr><td><b>PO Number</b></td><td>{{this.selectedRow.po_number}}</td></tr>
@@ -578,8 +580,8 @@
       clickCheckOrderCell(row) {
           this.dialogCheckOrder = !this.dialogCheckOrder;
           this.selectedRow = row;
-          console.log(row.tracking_ids);
-          console.log(row.tracking_ids.length);
+          console.log(row);
+          console.log("row.tracking_ids: ", row.client_address);
       },
       clickDeleteOrderCell(row) {
         this.selectedRow = row;

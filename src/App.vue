@@ -18,7 +18,7 @@
         <li><a href="/">Home</a></li>
         <li><router-link to="/shipping-pending">Shipping Status</router-link></li>
         <li><router-link to="/place-order">Place Order</router-link></li>
-        <li><router-link to="/check-client-inventory">Check Current Client Inventory</router-link></li>
+        <!-- <li><router-link to="/check-client-inventory">Check Current Client Inventory</router-link></li> -->
       </ul>
       <form class="navbar-form navbar-right" v-if="current_loggin_user != ''" style="margin-right:50px;">
         <div class="form-group active"><a style="color: white;">Hi {{current_loggin_user}}!&nbsp&nbsp&nbsp</a></div>
