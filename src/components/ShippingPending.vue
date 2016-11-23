@@ -255,6 +255,11 @@
       }, function(err){
         console.log(err)
       });
+
+      setInterval(function() {
+        self.loadTable();
+      }, 30000)
+
     },
     computed: {
       searchTextUpperCase: function() {
