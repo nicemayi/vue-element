@@ -125,6 +125,9 @@
                   <el-form-item label="ESR">
                     <el-input-number v-model="client_order.ESR_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
+                  <el-form-item label="ESR HA">
+                    <el-input-number v-model="client_order.ESR_HA_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
+                  </el-form-item>
                   <el-form-item label="Transfer">
                     <el-input-number v-model="client_order.Transfer_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
@@ -297,6 +300,9 @@
                   <el-form-item label="ESR">
                     <el-input-number v-model="patient_order.ESR_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
+                  <el-form-item label="ESR HA">
+                    <el-input-number v-model="patient_order.ESR_HA_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
+                  </el-form-item>
                   <el-form-item label="Transfer">
                     <el-input-number v-model="patient_order.Transfer_Tube_Pack" style="width: 50%; float:right;"></el-input-number>
                   </el-form-item>
@@ -422,7 +428,7 @@
         if (!this.client_order.shipping_method) {
           return false
         }
-        if ((this.client_order.ReBox_ALL + this.client_order.ReBox_Stand + this.client_order.ReBox_SST_EDTA + this.client_order.ReBox_SST + this.client_order.ReBox_ALL_HA + this.client_order.regular_box + this.client_order.big_box + this.client_order.Transfer_Tube_Pack + this.client_order.Plasma_Tube_Pack + this.client_order.Urine_Tube_Pack + this.client_order.Serum_Tube_Pack + this.client_order.ESR_Tube_Pack + this.client_order.EDTA_Tube_Pack + this.client_order.Bags_Pack == 0) && (this.client_select_ph_item_arr.length == 0)) {
+        if ((this.client_order.ReBox_ALL + this.client_order.ReBox_Stand + this.client_order.ReBox_SST_EDTA + this.client_order.ReBox_SST + this.client_order.ReBox_ALL_HA + this.client_order.regular_box + this.client_order.big_box + this.client_order.Transfer_Tube_Pack + this.client_order.Plasma_Tube_Pack + this.client_order.Urine_Tube_Pack + this.client_order.Serum_Tube_Pack + this.client_order.ESR_Tube_Pack + this.client_order.ESR_HA_Tube_Pack + this.client_order.EDTA_Tube_Pack + this.client_order.Bags_Pack == 0) && (this.client_select_ph_item_arr.length == 0)) {
           return false;
         }
         return true;
@@ -436,7 +442,7 @@
         if (!cond_patient_info) {
           return false;
         }
-        let cond_patient_order = (this.patient_order.ReBox_ALL + this.patient_order.ReBox_Stand + this.patient_order.ReBox_SST_EDTA + this.patient_order.ReBox_SST + this.patient_order.ReBox_ALL_HA + this.patient_order.regular_box + this.patient_order.big_box + this.patient_order.Transfer_Tube_Pack + this.patient_order.Plasma_Tube_Pack + this.patient_order.Urine_Tube_Pack + this.patient_order.Serum_Tube_Pack + this.patient_order.ESR_Tube_Pack + this.patient_order.EDTA_Tube_Pack + this.patient_order.Bags_Pack + this.patient_select_ph_item_arr.length) == 0;
+        let cond_patient_order = (this.patient_order.ReBox_ALL + this.patient_order.ReBox_Stand + this.patient_order.ReBox_SST_EDTA + this.patient_order.ReBox_SST + this.patient_order.ReBox_ALL_HA + this.patient_order.regular_box + this.patient_order.big_box + this.patient_order.Transfer_Tube_Pack + this.patient_order.Plasma_Tube_Pack + this.patient_order.Urine_Tube_Pack + this.patient_order.Serum_Tube_Pack + this.patient_order.ESR_Tube_Pack + this.patient_order.ESR_HA_Tube_Pack + this.patient_order.EDTA_Tube_Pack + this.patient_order.Bags_Pack + this.patient_select_ph_item_arr.length) == 0;
         // console.log("this.patient_select_ph_item_arr.length: ", this.patient_select_ph_item_arr.length);
         // console.log((this.patient_order.ReBox_ALL + this.patient_order.ReBox_Stand + this.patient_order.ReBox_SST_EDTA + this.patient_order.ReBox_SST + this.patient_order.ReBox_ALL_HA + this.patient_order.regular_box + this.patient_order.big_box + this.patient_order.Transfer_Tube_Pack + this.patient_order.Plasma_Tube_Pack + this.patient_order.Urine_Tube_Pack + this.patient_order.Serum_Tube_Pack + this.patient_order.ESR_Tube_Pack + this.patient_order.EDTA_Tube_Pack + this.patient_order.Bags_Pack + this.patient_select_ph_item_arr.length));
 
@@ -480,6 +486,7 @@
           Urine_Tube_Pack: 0,
           Serum_Tube_Pack: 0,
           ESR_Tube_Pack: 0,
+          ESR_HA_Tube_Pack: 0,
           EDTA_Tube_Pack: 0,
           Bags_Pack: 0,
           phlebotomy_supplies: {},
@@ -512,6 +519,7 @@
           Urine_Tube_Pack: 0,
           Serum_Tube_Pack: 0,
           ESR_Tube_Pack: 0,
+          ESR_HA_Tube_Pack: 0,
           EDTA_Tube_Pack: 0,
           Bags_Pack: 0,
           phlebotomy_supplies: {},
@@ -600,6 +608,7 @@
           Urine_Tube_Pack: 0,
           Serum_Tube_Pack: 0,
           ESR_Tube_Pack: 0,
+          ESR_HA_Tube_Pack: 0,
           EDTA_Tube_Pack: 0,
           Bags_Pack: 0,
           phlebotomy_supplies: {},
@@ -674,6 +683,7 @@
           Urine_Tube_Pack: 0,
           Serum_Tube_Pack: 0,
           ESR_Tube_Pack: 0,
+          ESR_HA_Tube_Pack: 0,
           EDTA_Tube_Pack: 0,
           Bags_Pack: 0,
           phlebotomy_supplies: {},

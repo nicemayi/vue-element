@@ -58,6 +58,10 @@ app.use(proxyMiddleware('/client-shipping-pending-table/', {target: 'http://loca
 app.use(proxyMiddleware('/client-shipping-finish-table/', {target: 'http://localhost:5000'}))
 app.use(proxyMiddleware('/client-update-shipping-table/', {target: 'http://localhost:5000'}))
 app.use(proxyMiddleware('/auth-user/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/get-clients/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/get-client-inventory/', {target: 'http://localhost:5000'}))
+
+
 // app.use(proxyMiddleware('/', {target: 'http://localhost:5000'}))
 
 // handle fallback for HTML5 history API
