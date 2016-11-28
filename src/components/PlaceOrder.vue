@@ -775,9 +775,10 @@
       },
       createFilterClient(queryString) {
         return (searchSuggestions) => {
-          let isName = (searchSuggestions.client_name.indexOf(queryString.toUpperCase()) === 0);
-          let isID = (searchSuggestions.client_id.indexOf(queryString.toUpperCase()) === 0);
-          return isName | isID
+          let isName = (searchSuggestions.client_name.indexOf(queryString.toUpperCase()) >= 0);
+          let isID = (searchSuggestions.client_id.indexOf(queryString.toUpperCase()) >= 0);
+          let isPracticeName = (searchSuggestions.client_practice_name.indexOf(queryString.toUpperCase()) >= 0);
+          return isName | isID | isPracticeName
         };
       },
       handleSelect(item) {
