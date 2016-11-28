@@ -69,6 +69,27 @@
                 </table>
               </div>
             </div>
+            <el-checkbox v-model="client_order.isStandardingOrder">This is a standing order.</el-checkbox>
+            <hr/>
+            <el-form :inline="true" label-position="top" v-if="client_order.isStandardingOrder">
+              <el-form-item label="Starting Date">
+                <el-date-picker
+                  type="date"
+                  v-model="standingOrderStartingDate"
+                  placeholder="Pick a day">
+                </el-date-picker>
+              </el-form-item>
+              <el-form-item label="Time Period">
+                <el-select v-model="standOrderPeriod" placeholder="Select">
+                  <el-option
+                    v-for="option in standOrderPeriodOptions"
+                    :label="option.label"
+                    :value="option.value">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-form>
+            <hr/>
             <el-button type="danger" :disabled="!isValidClientOrder" @click="submitClientOrder">Place Client Order</el-button>
           </div>
           <div class="col-md-3 col-sm-4 col-xm-6">
@@ -241,7 +262,7 @@
                   </el-form-item>
               </div>
             </div>
-            <el-button type="danger" :disabled="!isValidPatientOrder" @click="submitPatientOrder">Place Client Order</el-button>
+            <el-button type="danger" :disabled="!isValidPatientOrder" @click="submitPatientOrder">Place Patient Order</el-button>
           </div>
           <div class="col-md-3 col-sm-4 col-xm-6">
             <div class="panel panel-primary">
@@ -453,6 +474,21 @@
     },
     data() {
       return {
+        standingOrderStartingDate: '',
+        standOrderPeriodOptions: [{
+            value: 'weekly',
+            label: 'Weekly'
+          },{
+            value: 'bi-weekly',
+            label: 'Bi-weekly'
+          },{
+            value: 'monthly',
+            label: 'Monthly'
+          },{
+            value: 'bi-monthly',
+            label: 'Bi-monthly'
+          }
+        ],
         // Client status
         searchForClient: '',
         clientCurrentStatus: {
@@ -467,6 +503,7 @@
           "client_zipcode": ""
         },
         client_order: {
+          isStandardingOrder: false,
           operator: this.current_loggin_user,
           client_id: '',
           ReBox_ALL: 0,
@@ -605,7 +642,8 @@
           Bags_Pack: 0,
           phlebotomy_supplies: {},
           shipping_method: "",
-          comments: ''
+          comments: '',
+          isStandardingOrder: false,
         }
       },
       submitPatientOrder() {
