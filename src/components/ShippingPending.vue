@@ -71,9 +71,11 @@
             sortable>
           </el-table-column>
           <el-table-column
-            property="shipping_method"
+            prop="tag"
             label="Shipping Method"
-            sortable>
+            inline-template
+            width="150">
+            <el-button :disabled="!current_loggin_user" type="primary" icon="edit" size="small" @click="addCommentCell(row)">{{row.shipping_method}}</el-button>
           </el-table-column>
           <el-table-column
             prop="tag"
@@ -329,7 +331,7 @@
         selectedRow: {},
         selectedRowComplete: {},
         pendingOrders: [],
-        completeOrders: [],
+        completeOrders: []
       }
     },
     events: {
