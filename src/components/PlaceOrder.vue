@@ -69,7 +69,7 @@
                 </table>
               </div>
             </div>
-            <el-checkbox v-model="client_order.isStandardingOrder">This is a standing order.</el-checkbox>
+<!--             <el-checkbox v-model="client_order.isStandardingOrder">This is a standing order.</el-checkbox>
             <hr/>
             <el-form :inline="true" label-position="top" v-if="client_order.isStandardingOrder">
               <el-form-item label="Starting Date">
@@ -89,7 +89,7 @@
                 </el-select>
               </el-form-item>
             </el-form>
-            <hr/>
+            <hr/> -->
             <el-button type="danger" :disabled="!isValidClientOrder" @click="submitClientOrder">Place Client Order</el-button>
           </div>
           <div class="col-md-3 col-sm-4 col-xm-6">

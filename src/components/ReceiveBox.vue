@@ -69,6 +69,21 @@
                 sortable>
             </el-table-column>
         </el-table>
+<!--         <el-dialog title="Please select box type." v-model="dialogFormVisible" size="tiny">
+            <el-form>
+                <el-form-item label="Box Type">
+                    <el-radio-group v-model="inputBoxType">
+                        <el-radio label="0">Regular Box</el-radio>
+                        <el-radio label="1">Ship-out Box</el-radio>
+                        <el-radio label="1">Big Box</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogFormVisible = false">Cancel</el-button>
+                <el-button type="primary" @click="submitBoxType">Confirm</el-button>
+            </span>
+        </el-dialog> -->
     </div>
 </template>
 
@@ -120,7 +135,9 @@
                 },
                 picked_date: '',
                 tableLoading: true,
-                searchFor: ''
+                searchFor: '',
+                inputBoxType: '',
+                dialogFormVisible: false,
             }
         },
         methods: {
@@ -144,6 +161,9 @@
                 this.scannedTrackingID = '';
                 document.getElementsByClassName("el-input__inner")[0].focus();
             },
+            submitBoxType() {
+                console.log(0);
+            },
             receiveBox(scannedTrackingID) {
                 // console.log("scannedTrackingID: ", scannedTrackingID);
                 let self = this;
@@ -161,12 +181,13 @@
                             offset: 600
                         });
                     } else if (res.data == "insert success") {
-                        self.picked_date = '';
-                        self.$notify.warning({
-                            title: `Hi ${self.current_loggin_user},`,
-                            message: `You added ${scannedTrackingID}.`,
-                            offset: 600
-                        });
+                        self.dialogFormVisible = true;
+                        // self.picked_date = '';
+                        // self.$notify.warning({
+                        //     title: `Hi ${self.current_loggin_user},`,
+                        //     message: `You added ${scannedTrackingID}.`,
+                        //     offset: 600
+                        // });
                     } else if (res.data == "already recevied") {
                         self.picked_date = '';
                         self.$notify.error({

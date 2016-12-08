@@ -71,11 +71,9 @@
             sortable>
           </el-table-column>
           <el-table-column
-            prop="tag"
+            property="shipping_method"
             label="Shipping Method"
-            inline-template
-            width="150">
-            <el-button :disabled="!current_loggin_user" type="primary" icon="edit" size="small" @click="addCommentCell(row)">{{row.shipping_method}}</el-button>
+            sortable>
           </el-table-column>
           <el-table-column
             prop="tag"
@@ -115,16 +113,30 @@
             <el-button type="danger" :disabled="multipleSelection.length == 0" @click="printOrderDetail">Print Order Details</el-button>
           </span>
         </div>
-
-
       </el-tab-pane>
       <el-tab-pane label="Completed Order">
         <div id="search_div_complete" class="container-fluid" align="left">
-          <el-input id="search_client_complete"
-            placeholder="search..."
-            v-model="searchTextComplete"
-            style="width: 20%;">
-          </el-input>
+          <el-form :inline="true">
+              <el-form-item>
+                <el-input id="search_client_complete"
+                  placeholder="search..."
+                  v-model="searchTextComplete"
+                  style="width: 100%;">
+                </el-input>
+              </el-form-item>
+              <el-form-item style="float: right;">
+                  <el-button type="primary" @click="loadTable">Search Date</el-button>
+              </el-form-item>
+              <el-form-item style="float: right;">
+                  <el-date-picker
+                      type="daterange"
+                      align="right"
+                      placeholder="Pick a range"
+                      v-model="picked_date"
+                      :picker-options="pickerOptions">
+                  </el-date-picker>
+              </el-form-item>
+          </el-form>
         </div>
         <br/>
         <el-table
@@ -189,7 +201,7 @@
             prop="tag"
             label="Check Order Detail"
             inline-template>
-            <el-button type="primary" icon="edit" size="mini" @click="clickCheckOrderCell(row)">Check Order</el-button>
+            <el-button type="primary" icon="edit" size="mini" @click="clickCheckOrderCellComplete(row)">Check Order</el-button>
           </el-table-column>
         </el-table>
         <hr/>
@@ -235,6 +247,38 @@
       </div>
     </el-dialog>
 
+    <el-dialog top= "5%" title='Order Details' v-model="dialogCheckOrderComplete">
+      <div align="left">
+      <h3>{{this.selectedRow.client_address}}</h3>
+      <hr/>
+        <table class="table">
+          <tbody>
+            <tr><td><b>PO Number</b></td><td>{{this.selectedRow.po_number}}</td></tr>
+            <tr v-for="(value, key) in this.selectedRow.Order_Details">
+              <td><b>{{key.split('_').map(function(el) {return el.toUpperCase()}).join(' ')}}</b></td>
+              <td>{{value}}</td>
+            </tr>
+            <hr/>
+            <div v-if="this.selectedRow.tracking_ids && this.selectedRow.tracking_ids.length > 0">
+              <h3>Tracking ID</h3>
+              <el-button-group v-for="each_tracking_id in this.selectedRow.tracking_ids">
+                <el-tooltip class="item" effect="dark" content="Click me to see where the package is!" placement="bottom">
+                  <el-button :type="(each_tracking_id.track_id_type == 'OUT')? 'success': 'danger'" style="margin-right: 10px;" @click="checkTrackingID(each_tracking_id.tracking_id)">({{each_tracking_id.track_id_type}}) {{each_tracking_id.tracking_id}}</el-button>
+                </el-tooltip>
+              </el-button-group>
+            </div>
+            <hr/>
+            <div v-if="this.selectedRow.comments && this.selectedRow.comments.length > 0">
+              <h3>Comments</h3>
+              <ul>
+                <li v-for="each_comment in this.selectedRow.comments">{{each_comment}}</li>
+              </ul>
+            </div>
+          </tbody>
+        </table>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -244,18 +288,21 @@
 
   export default {
     beforeMount: function() {
-      var self = this;
+      let self = this;
       self.$http.get('/shipping-pending-orders/').then(function(res){
         let res_status = res.data.status;
         self.pendingOrders = JSON.parse(res.data);
       }, function(err){
         console.log(err)
       });
-      self.$http.get('/shipping-complete-orders/').then(function(res){
+
+      let start_date = self.start_date;
+      let end_date = self.end_date;
+      self.$http.post('/shipping-complete-orders/', {start_date, end_date}).then(function(res){
         let res_status = res.data.status;
         self.completeOrders = JSON.parse(res.data);
       }, function(err){
-        console.log(err)
+          console.log(err)
       });
 
       setInterval(function() {
@@ -264,6 +311,25 @@
 
     },
     computed: {
+      start_date: function() {
+          if (this.picked_date) {
+              return this.picked_date[0];
+          } else{
+              let dateNow = new Date();
+              let dateToday = new Date(dateNow.getFullYear(), dateNow.getMonth(), dateNow.getDate());
+              let dateSunday = new Date(dateToday.getTime()-dateToday.getDay()*24*3600*1000);
+              // console.log(dateSunday)
+              return dateSunday
+          }
+      },
+      end_date: function() {
+          if (this.picked_date) {
+              return this.picked_date[1];
+          } else {
+              let end_date = new Date();
+              return end_date
+          }
+      },
       searchTextUpperCase: function() {
         console.log("this.searchText.toLowerCase(): ", this.searchText.toLowerCase())
         return this.searchText.toLowerCase();
@@ -328,10 +394,39 @@
         multipleSelection: [],
         multipleSelectionComplete: [],
         dialogCheckOrder: false,
+        dialogCheckOrderComplete: false,
         selectedRow: {},
         selectedRowComplete: {},
         pendingOrders: [],
-        completeOrders: []
+        completeOrders: [],
+        picked_date: '',
+        pickerOptions: {
+          shortcuts: [{
+            text: 'Last week',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: 'Last month',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: 'Last 3 months',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
+        },
       }
     },
     events: {
@@ -371,6 +466,14 @@
           });
         })
       },
+      checkTrackingID(tracking_id) {
+        // console.log("tracking_id: ", tracking_id);
+        let url = `https://www.fedex.com/apps/fedextrack/?tracknumbers=${tracking_id}&cntry_code=us`
+        window.open(
+          url,
+          '_blank'
+        );
+      },
       printTrackingID(tracking_id) {
         let self = this;
         self.$http.post("/get-tracking-id-label/", {tracking_id}).then(function(res) {
@@ -404,11 +507,13 @@
         }, function(err){
           console.log(err)
         });
-        self.$http.get('/shipping-complete-orders/').then(function(res){
+        let start_date = self.start_date;
+        let end_date = self.end_date;
+        self.$http.post('/shipping-complete-orders/', {start_date, end_date}).then(function(res){
           let res_status = res.data.status;
           self.completeOrders = JSON.parse(res.data);
         }, function(err){
-          console.log(err)
+            console.log(err)
         });
       },
       addCommentCell(row) {
@@ -586,6 +691,12 @@
       },
       clickCheckOrderCell(row) {
           this.dialogCheckOrder = !this.dialogCheckOrder;
+          this.selectedRow = row;
+          console.log(row);
+          console.log("row.tracking_ids: ", row.client_address);
+      },
+      clickCheckOrderCellComplete(row) {
+          this.dialogCheckOrderComplete = !this.dialogCheckOrderComplete;
           this.selectedRow = row;
           console.log(row);
           console.log("row.tracking_ids: ", row.client_address);
