@@ -69,8 +69,8 @@
                 </table>
               </div>
             </div>
-<!--             <el-checkbox v-model="client_order.isStandardingOrder">This is a standing order.</el-checkbox>
-            <hr/>
+            <el-checkbox style="margin-bottom: 1rem;" v-model="client_order.isStandingOrder">This is a standing order.</el-checkbox>
+            <!-- <hr/>
             <el-form :inline="true" label-position="top" v-if="client_order.isStandardingOrder">
               <el-form-item label="Starting Date">
                 <el-date-picker
@@ -503,7 +503,7 @@
           "client_zipcode": ""
         },
         client_order: {
-          isStandardingOrder: false,
+          isStandingOrder: false,
           operator: this.current_loggin_user,
           client_id: '',
           ReBox_ALL: 0,
@@ -589,6 +589,29 @@
           { "value": "VA. requisition form Carbon"},
           { "value": "VG. requisition form"},
           { "value": "VW. requisition form"},
+          { "value": "Butterfly Needles w/ regular hubs"},
+          { "value": "Straight Needles w/ safety hubs"},
+          { "value": "Tourniquets"},
+          { "value": "Coban wrap"},
+          { "value": "Medical tape"},
+          { "value": "Gauze"},
+          { "value": "Alcohol prep"},
+          { "value": "Bandages"},
+          { "value": "Sharps container"},
+          { "value": "Tube rack"},
+          { "value": "Pipettes"},
+          { "value": "Urine cups"},
+          { "value": "Patient kit ins (patient/phleb instructions, specimen handling)"},
+          { "value": "Wheat Zoomer Instructions"},
+          { "value": "Gut Pac Kit/Instructions"},
+          { "value": "Swab Kit/Instructions"},
+          { "value": "VA brochure" },
+          { "value": "Gut Pac brochure" },
+          { "value": "Wheat Zoomer brochure" },
+          { "value": "Patient connection flyer" },
+          { "value": "Cardiax brochure" },
+          { "value": "VA folder" },
+          { "value": "VW folder" },
         ],
       };
     },
@@ -611,16 +634,28 @@
         for (let i=0; i < self.client_select_ph_item_arr.length; i++) {
           self.client_order.phlebotomy_supplies[self.client_select_ph_item_arr[i].item_name] = self.client_select_ph_item_arr[i].item_number;
         }
-        self.$http.post('/place-client-order-inventory/', {order: self.client_order}).then(function(res){
-          console.log("res is: ", res);
-          self.$message({
-            message: "Successfully submit client order!",
-            duration: 1000,
-            onClose: function() {
-              location.reload();
-            }
-          });
-        });
+        if (self.client_order.isStandingOrder) {
+          self.$http.post('/place-client-standing-order/', {order: self.client_order}).then(function(res) {
+            console.log(res);
+            self.$message({
+              message: "Successfully submit standing order!",
+              duration: 1000,
+              onClose: function() {
+                location.reload()
+              }
+            });
+          })
+        } else {
+          // self.$http.post('/place-client-order-inventory/', {order: self.client_order}).then((res) => {
+          //   self.$message({
+          //     message: "Successfully submit client order!",
+          //     duration: 1000,
+          //     onClose: function() {
+          //       location.reload();
+          //     }
+          //   });
+          // });
+        }
       },
       clearClientOrder() {
         this.client_order = {

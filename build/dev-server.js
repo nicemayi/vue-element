@@ -64,6 +64,7 @@ app.use(proxyMiddleware('/auth-user/', {target: 'http://localhost:5000'}))
 app.use(proxyMiddleware('/load-receive-table/', {target: 'http://localhost:5000'}))
 app.use(proxyMiddleware('/receive-box/', {target: 'http://localhost:5000'}))
 app.use(proxyMiddleware('/validate-user/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/place-client-standing-order/', {target: 'http://localhost:5000'}))
 // app.use(proxyMiddleware('/', {target: 'http://localhost:5000'}))
 
 // handle fallback for HTML5 history API

@@ -12,7 +12,7 @@
 
 <template>
   <div id="app" class="container-fluid">
-    
+
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <ul class="nav navbar-nav" style="margin-left:50px;">
         <li><a href="/">Home</a></li>
@@ -55,6 +55,7 @@
       var self = this;
       self.$http.get('/who/').then(function(res){
         self.current_loggin_user = res.data;
+        console.log("res.data: ", res.data);
       }, function(err){
         console.log(err)
       });
@@ -86,5 +87,3 @@
     }
   }
 </script>
-
-
