@@ -69,7 +69,7 @@
                 </table>
               </div>
             </div>
-            <el-checkbox style="margin-bottom: 1rem;" v-model="client_order.isStandingOrder">This is a standing order.</el-checkbox>
+            <!-- <el-checkbox style="margin-bottom: 1rem;" v-model="client_order.isStandingOrder">This is a standing order.</el-checkbox> -->
             <!-- <hr/>
             <el-form :inline="true" label-position="top" v-if="client_order.isStandardingOrder">
               <el-form-item label="Starting Date">
@@ -332,14 +332,22 @@
             <div class="panel panel-primary">
               <div class="panel-heading">Phlebotomy Supplies/Req. Forms</div>
               <div class="panel-body">
-                <el-autocomplete
+                <el-select
                   :fetch-suggestions="querySearch"
                   placeholder="search..."
                   size="large"
                   v-model="patient_select_ph_item"
                   @select="handleSelect"
                   >
-                </el-autocomplete>
+                  <el-option-group
+                    v-for="group in ph_items"
+                    :label="group.label">
+                    <el-option
+                      v-for="item in group.options"
+                      :value="item.value">
+                    </el-option>
+                  </el-option-group>
+                </el-select>
                 <br/>
                 <el-form :inline="true">
                   <el-form-item>
@@ -585,33 +593,50 @@
           label: 'Priority Overnight'
         }],
         ph_items: [
-          { "value": "VA. requisition form"},
-          { "value": "VA. requisition form Carbon"},
-          { "value": "VG. requisition form"},
-          { "value": "VW. requisition form"},
-          { "value": "Butterfly Needles w/ regular hubs"},
-          { "value": "Straight Needles w/ safety hubs"},
-          { "value": "Tourniquets"},
-          { "value": "Coban wrap"},
-          { "value": "Medical tape"},
-          { "value": "Gauze"},
-          { "value": "Alcohol prep"},
-          { "value": "Bandages"},
-          { "value": "Sharps container"},
-          { "value": "Tube rack"},
-          { "value": "Pipettes"},
-          { "value": "Urine cups"},
-          { "value": "Patient kit ins (patient/phleb instructions, specimen handling)"},
-          { "value": "Wheat Zoomer Instructions"},
-          { "value": "Gut Pac Kit/Instructions"},
-          { "value": "Swab Kit/Instructions"},
-          { "value": "VA brochure" },
-          { "value": "Gut Pac brochure" },
-          { "value": "Wheat Zoomer brochure" },
-          { "value": "Patient connection flyer" },
-          { "value": "Cardiax brochure" },
-          { "value": "VA folder" },
-          { "value": "VW folder" },
+          {
+            label: "Regular Items",
+            options: [
+              { "value": "VA. requisition form"},
+              { "value": "VA. requisition form Carbon"},
+              { "value": "VG. requisition form"},
+              { "value": "VW. requisition form"},
+              { "value": "Butterfly Needles w/ regular hubs"},
+              { "value": "Straight Needles w/ safety hubs"},
+              { "value": "Tourniquets"},
+              { "value": "Coban wrap"},
+              { "value": "Medical tape"},
+              { "value": "Gauze"},
+              { "value": "Alcohol prep"},
+              { "value": "Bandages"},
+              { "value": "Sharps container"},
+              { "value": "Tube rack"},
+              { "value": "Pipettes"},
+              { "value": "Urine cups"},
+              { "value": "Patient kit ins (patient/phleb instructions, specimen handling)"},
+              { "value": "Wheat Zoomer Instructions"},
+              { "value": "Gut Pac Kit/Instructions"},
+              { "value": "Swab Kit/Instructions"},
+              { "value": "VA brochure" },
+              { "value": "Gut Pac brochure" },
+              { "value": "Wheat Zoomer brochure" },
+              { "value": "Patient connection flyer" },
+              { "value": "Cardiax brochure" },
+              { "value": "VA folder" },
+              { "value": "VW folder" }
+            ]
+          }, {
+            label: "Wheat Zoomer Kits",
+            options: [
+              {"value": 'Cardiax Kit'},
+              {"value": 'Neurological Kit'},
+              {"value": 'Metabolic Weight Loss Kit'},
+              {"value": 'Food Sensitivity Kit'},
+              {"value": 'Gut-PAC Kit'},
+              {"value": 'Micronutrients Kit'},
+              {"value": 'Respiratory Virus Kit'},
+              {"value": 'Wheat Zoomer Kit'}
+            ]
+          }
         ],
       };
     },
@@ -635,26 +660,28 @@
           self.client_order.phlebotomy_supplies[self.client_select_ph_item_arr[i].item_name] = self.client_select_ph_item_arr[i].item_number;
         }
         if (self.client_order.isStandingOrder) {
-          self.$http.post('/place-client-standing-order/', {order: self.client_order}).then(function(res) {
-            console.log(res);
-            self.$message({
-              message: "Successfully submit standing order!",
-              duration: 1000,
-              onClose: function() {
-                location.reload()
-              }
-            });
-          })
-        } else {
-          // self.$http.post('/place-client-order-inventory/', {order: self.client_order}).then((res) => {
+          console.log("in standing order");
+          // self.$http.post('/place-client-standing-order/', {order: self.client_order}).then(function(res) {
+          //   console.log(res);
           //   self.$message({
-          //     message: "Successfully submit client order!",
+          //     message: "Successfully submit standing order!",
           //     duration: 1000,
           //     onClose: function() {
-          //       location.reload();
+          //       location.reload()
           //     }
           //   });
-          // });
+          // })
+        } else {
+          // console.log("here");
+          self.$http.post('/place-client-order-inventory/', {order: self.client_order}).then((res) => {
+            self.$message({
+              message: "Successfully submit client order!",
+              duration: 1000,
+              onClose: function() {
+                location.reload();
+              }
+            });
+          });
         }
       },
       clearClientOrder() {
@@ -790,12 +817,17 @@
         if (flag == 'patient-order') {
           self.order = origin_order;
           self.validatePatientOrder();
-          console.log(self.order);
           self.dialogFormVisible = true;
         }
       },
       querySearch(queryString, cb) {
-        var ph_items = this.ph_items;
+        var ph_items = this.ph_items.filter((el) => {
+          return el.label === "Regular Items";
+        })[0].options;
+        var wz_items = this.ph_items.filter((el) => {
+          return el.label === "Wheat Zoomer Kits";
+        })[0].options;
+        var ph_items = ph_items.concat(wz_items);
         var results = queryString ? ph_items.filter(this.createFilter(queryString)) : ph_items;
         cb(results);
       },
