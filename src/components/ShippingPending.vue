@@ -285,6 +285,7 @@
 <script>
 
   import {printer} from '../qz/printer.js'
+  var _ = require('lodash');
 
   export default {
     beforeMount: function() {
@@ -579,7 +580,7 @@
           self.selectedRow = {};
           self.loadTable()
         }, function(err){
-          console.log(err);
+          // console.log(err);
           self.multipleSelection.length = 0;
           self.selectedRow = {};
           self.loadTable()
@@ -591,13 +592,42 @@
         let po_numbers = [];
         let current_loggin_user = self.current_loggin_user;
         let operator = self.current_loggin_user;
-        for (let i=0; i<self.multipleSelection.length; i++) {
-
+        for (let i=0; i < self.multipleSelection.length; i++) {
+          let current_po = self.multipleSelection[i].po_number;
           let po_packed_by = self.multipleSelection[i].po_packed_by;
           let po_packed_time= self.multipleSelection[i].po_packed_time;
           let tag = self.multipleSelection[i].tag;
-
-          if ((po_packed_time != '') && (po_packed_by != '') && (current_loggin_user != '') && (current_loggin_user != po_packed_by) && (tag == 'Packed')) {
+          let conditions = {
+            isValidPackedTime: po_packed_time != '',
+            isValidPackedBy: po_packed_by != '',
+            isLoggedin: current_loggin_user != '',
+            isLoggedinNotPackedby: current_loggin_user != po_packed_by,
+            isTagPacked: tag == 'Packed'
+          };
+          let sum_conditions = 0;
+          let total_conditions = 0;
+          _.mapValues(conditions , (val) => {
+            if (val) {
+              sum_conditions++;
+            }
+            total_conditions++;
+          });
+          if (!conditions.isLoggedin) {
+            self.$message.error(`You must login first.`);
+          }
+          if (!conditions.isTagPacked) {
+            self.$message.error(`po number ${current_po} has not been packed yet.`);
+          }
+          if (!conditions.isValidPackedBy) {
+            self.$message.error(`Invalid packed-by information`);
+          }
+          if (!conditions.isValidPackedTime) {
+            self.$message.error(`Invalid packed-time information.`);
+          }
+          if (!conditions.isLoggedinNotPackedby) {
+            self.$message.error(`po number ${current_po} is packed by ${po_packed_by}, which can not be verified by ${current_loggin_user}.`);
+          }
+          if (sum_conditions == total_conditions) {
             po_numbers.push(self.multipleSelection[i].po_number);
           }
         }
@@ -609,12 +639,12 @@
         }).then(function(res){
           self.multipleSelection.length = 0;
           self.selectedRow = {};
-          self.loadTable()
+          self.loadTable();
         }, function(err){
-          console.log(err)
+          // console.log(err)
           self.multipleSelection.length = 0;
           self.selectedRow = {};
-          self.loadTable()
+          self.loadTable();
         });
       },
       printOrderDetail: function() {
@@ -692,14 +722,14 @@
       clickCheckOrderCell(row) {
           this.dialogCheckOrder = !this.dialogCheckOrder;
           this.selectedRow = row;
-          console.log(row);
+          // console.log(row);
           console.log("row.tracking_ids: ", row.client_address);
       },
       clickCheckOrderCellComplete(row) {
           this.dialogCheckOrderComplete = !this.dialogCheckOrderComplete;
           this.selectedRow = row;
-          console.log(row);
-          console.log("row.tracking_ids: ", row.client_address);
+          // console.log(row);
+          // console.log("row.tracking_ids: ", row.client_address);
       },
       clickDeleteOrderCell(row) {
         this.selectedRow = row;
