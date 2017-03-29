@@ -12,6 +12,7 @@ import PlaceOrder from './components/PlaceOrder.vue'
 import ClientInventory from './components/ClientInventory.vue'
 import ReceiveBox from './components/ReceiveBox.vue'
 
+
 Vue.use(VueRouter);
 Vue.use(VueResource);
 Vue.use(ElementUI, { locale })

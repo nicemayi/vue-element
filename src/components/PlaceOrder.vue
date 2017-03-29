@@ -332,7 +332,7 @@
             <div class="panel panel-primary">
               <div class="panel-heading">Phlebotomy Supplies/Req. Forms</div>
               <div class="panel-body">
-                <el-select
+                <el-autocomplete
                   :fetch-suggestions="querySearch"
                   placeholder="search..."
                   size="large"
@@ -347,7 +347,7 @@
                       :value="item.value">
                     </el-option>
                   </el-option-group>
-                </el-select>
+                </el-autocomplete>
                 <br/>
                 <el-form :inline="true">
                   <el-form-item>
@@ -614,15 +614,13 @@
               { "value": "Urine cups"},
               { "value": "Patient kit ins (patient/phleb instructions, specimen handling)"},
               { "value": "Wheat Zoomer Instructions"},
-              { "value": "Gut Pac Kit/Instructions"},
-              { "value": "Swab Kit/Instructions"},
               { "value": "VA brochure" },
               { "value": "Gut Pac brochure" },
               { "value": "Wheat Zoomer brochure" },
               { "value": "Patient connection flyer" },
               { "value": "Cardiax brochure" },
               { "value": "VA folder" },
-              { "value": "VW folder" }
+              { "value": "VW folder" },
             ]
           }, {
             label: "Wheat Zoomer Kits",
@@ -634,7 +632,8 @@
               {"value": 'Gut-PAC Kit'},
               {"value": 'Micronutrients Kit'},
               {"value": 'Respiratory Virus Kit'},
-              {"value": 'Wheat Zoomer Kit'}
+              {"value": 'Wheat Zoomer Kit'},
+              {"value": 'Buccal Swab Kit'}
             ]
           }
         ],

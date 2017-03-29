@@ -306,9 +306,7 @@
           console.log(err)
       });
 
-      setInterval(function() {
-        self.loadTable();
-      }, 30000)
+      self.loadTable();
 
     },
     computed: {

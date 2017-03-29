@@ -42,10 +42,16 @@
         </div>
         <el-table
             :data="filteredTableData"
-            height="620">
+            height="620"
+            @cell-click="handleClickCell">
             <el-table-column
                 property="tracking_id"
                 label="Tracking ID"
+                sortable>
+            </el-table-column>
+            <el-table-column
+                property="client_id"
+                label="Client ID"
                 sortable>
             </el-table-column>
             <el-table-column
@@ -69,7 +75,8 @@
                 sortable>
             </el-table-column>
         </el-table>
-<!--         <el-dialog title="Please select box type." v-model="dialogFormVisible" size="tiny">
+        <receive-modal :showModalFromParent="this.showModal" :closeModal="this.handleCloseModal" :data="this.modalData"></receive-modal>
+        <!-- <el-dialog title="Please select box type." v-model="dialogFormVisible" size="tiny">
             <el-form>
                 <el-form-item label="Box Type">
                     <el-radio-group v-model="inputBoxType">
@@ -88,7 +95,9 @@
 </template>
 
 <script>
+    import ReceiveModal from './modals/ReceiveModal';
     export default {
+        components: { "receive-modal": ReceiveModal },
         beforeMount() {
             let self = this;
             let start_date = self.start_date;
@@ -101,6 +110,8 @@
         },
         data() {
             return {
+                showModal: false,
+                modalData: {},
                 scannedTrackingID: '',
                 showLabel: '',
                 inputFocus: true,
@@ -141,6 +152,24 @@
             }
         },
         methods: {
+            handleClickCell(row, column, cell, event) {
+              if (column.label === 'Client ID') {
+                console.log("row", row);
+                console.log("column", column);
+                console.log("cell", cell);
+                console.log("event", event);
+                console.log("handleClickCell");
+                this.modalData = {
+                  tracking_id: row.tracking_id,
+                  edit_by: current_loggin_user
+                };
+                this.showModal = true;
+              }
+            },
+            handleCloseModal() {
+              this.modalData = {};
+              this.showModal = false;
+            },
             setFocus() {
                 let trackID = this.scannedTrackingID.slice(22, this.scannedTrackingID.length);
                 if (trackID != '') {
@@ -269,5 +298,3 @@
         }
     }
 </script>
-
-
