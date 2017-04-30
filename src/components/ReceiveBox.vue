@@ -1,5 +1,10 @@
 <style>
-
+  .el-table .error-row {
+    background: #ff9999;
+  }
+  .el-table .warning-row {
+    background: #b3ccff;
+  }
 </style>
 
 <template>
@@ -7,15 +12,16 @@
     <div id="search_div" class="container-fluid" align="left" >
       <el-form :inline="true">
         <el-form-item>
-        <div class="el-input is-disabled">
-          <input :disabled="isLogin" id="receive_box_input" type="text" @keyup.enter="receiveBox" class="el-input__inner" v-model="scannedTrackingID">
-        </div>
+          <div class="el-input" :class="{ 'is-disabled': !isLogin }">
+            <input autofocus :disabled="!isLogin" id="receive_box_input" type="text" @keyup.enter="receiveBox" class="el-input__inner" v-model="scannedTrackingID">
+          </div>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="clearInput">Reset</el-button>
+          <button :disabled="!isLogin" :class="{ 'is-disabled': !isLogin, 'el-button': true, 'el-button--success': true }" @click="downloadCSV">Download Receive Log</button>
         </el-form-item>
         <el-form-item style="float: right;">
-          <el-input :disabled="true" id="search_tracking" placeholder="Filter..." style="width: 100%;" v-model="searchFor" auto-complete="off">
+          <el-input id="search_tracking" placeholder="Filter..." style="width: 100%;" v-model="searchFor" auto-complete="off">
           </el-input>
         </el-form-item>
         <el-form-item style="float: right;">
@@ -27,28 +33,30 @@
         </el-form-item>
       </el-form>
     </div>
-    <el-table :data="filteredTableData" height="620">
-      <el-table-column property="tracking_id" label="Tracking ID" sortable>
+    <el-table :data="filteredTableData" fit height="700" v-loading="isLoading" :row-class-name="tableRowClassName">
+      <el-table-column fixed property="tracking_id" label="Tracking ID" sortable width="140">
       </el-table-column>
-      <el-table-column property="po_number" label="PO Number" sortable>
+      <el-table-column property="client_id" label="Client ID" sortable width="120">
       </el-table-column>
-      <el-table-column property="client_id" label="Client ID" sortable>
+      <el-table-column property="po_number" label="PO" sortable width="80">
       </el-table-column>
-      <el-table-column property="client_practice_name" label="Practice Name" sortable>
+      <el-table-column property="estimated_delivery_date" label="Est." sortable width="120">
       </el-table-column>
-      <el-table-column property="client_street" label="Street" sortable>
+      <el-table-column property="fedex_delivery_date" label="Fedex Act." sortable width="140">
       </el-table-column>
-      <el-table-column property="client_state" label="State" sortable>
+      <el-table-column property="received_time" label="Received" sortable width="160">
       </el-table-column>
-      <el-table-column property="client_zipcode" label="Zipcode" sortable>
+      <el-table-column property="is_delayed" label="Is Delayed" sortable min-width="150">
       </el-table-column>
-      <el-table-column property="client_phone_number" label="Phone Number" sortable>
+      <el-table-column property="received_by" label="Rec." sortable width="100">
       </el-table-column>
-      <el-table-column property="box_type" label="Box Type" sortable>
+      <el-table-column property="client_name" label="Name" sortable width="160">
       </el-table-column>
-      <el-table-column property="received_by" label="Received By" sortable>
+      <el-table-column property="client_practice_name" label="Practice Name" sortable width="200">
       </el-table-column>
-      <el-table-column property="received_time" label="Received Time" sortable>
+      <el-table-column property="client_address" label="Address" sortable width="300">
+      </el-table-column>
+      <el-table-column property="received_comment" label="Note" min-width="600">
       </el-table-column>
     </el-table>
   </div>
@@ -56,6 +64,7 @@
 
 <script>
   import ReceiveModal from './modals/ReceiveModal';
+  import CSV from 'comma-separated-values';
   export default {
     components: {
       "receive-modal": ReceiveModal
@@ -78,6 +87,7 @@
     },
     data() {
       return {
+        isLoading: false,
         modalData: {},
         scannedTrackingID: '',
         inputFocus: true,
@@ -118,47 +128,134 @@
       }
     },
     methods: {
+      downloadCSV(e) {
+          if (e.clientX + e.clientY + e.screenX + e.screenY === 0) return;
+          const user = this.current_loggin_user;
+          if (!user) return;
+          const tableData = [ ...this.filteredTableData ];
+          if (tableData.len === 0) return;
+
+          const file_str = `Box Receiving Log by ${user}.csv`;
+
+          const tableHeaderArr = [
+            "tracking_id",
+            "client_id",
+            "po_number",
+            "estimated_delivery_date",
+            "fedex_delivery_date",
+            "received_time",
+            "is_delayed",
+            "received_by",
+            "client_name",
+            "client_practice_name",
+            "client_address",
+            "received_comment"
+          ];
+          let tableStr = tableHeaderArr.join(',') + '\n';
+          let _data = [];
+          tableData.forEach((row) => {
+            const _tmp = [];
+            for (let each of tableHeaderArr) {
+              _tmp.push(row[each]);
+            }
+            _data.push(_tmp);
+          });
+
+          const a = new CSV(_data, { header: tableHeaderArr }).encode();
+
+          const hiddenElement = document.createElement('a');
+          hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(a);
+          hiddenElement.target = '_blank';
+          hiddenElement.download = file_str;
+          hiddenElement.click();
+      },
+      tableRowClassName(row, index) {
+        if (row.is_delayed === 'Fedex Delay') {
+          return 'error-row';
+        } else if (row.is_delayed === 'Lab Late Receiving') {
+          return 'warning-row';
+        }
+        return '';
+      },
       clearInput() {
         this.scannedTrackingID = '';
         document.getElementById("receive_box_input").focus();
       },
       receiveBox() {
-        const scannedTrackingID = this.scannedTrackingID.slice(22, this.scannedTrackingID.length);
+        const _lenth = this.scannedTrackingID.length;
+        let scannedTrackingID;
+        const full_tracking_id = this.scannedTrackingID;
+        if (_lenth === 34) {
+          scannedTrackingID = this.scannedTrackingID.slice(this.scannedTrackingID.length - 12, this.scannedTrackingID.length);
+        } else {
+          scannedTrackingID = this.scannedTrackingID;
+        }
         const self = this;
         const sendData = {
           tracking_id: scannedTrackingID,
           operator: self.current_loggin_user
         }
+        
+        self.scannedTrackingID = '';
+        self.isLoading = true;
+
         self.$http.post('/receive-box/', sendData).then(function (res) {
           if (res.data === 'update success') {
+            self.isLoading = false;
             self.picked_date = '';
-            self.$nofify.success({
+            self.$notify.success({
               title: `Hi ${self.current_loggin_user}`,
               message: `You updated ${scannedTrackingID}`,
               offset: 600
             });
           } else if (res.data === 'already recevied') {
+            self.isLoading = false;
             self.picked_date = '';
             self.$notify.error({
               title: `Hi ${self.current_loggin_user},`,
               message: "This box has been received."
             });
           } else if (res.data === 'insert success') {
+            self.isLoading = false;
             self.picked_date = '';
             self.$notify.success({
               title: `Hi ${self.current_loggin_user},`,
               message: `You added ${scannedTrackingID}`,
             });
-          } else {
-            console.log(res.data)
-            self.openInputCustomerInfoPrompt(scannedTrackingID, (value) => {
-              console.log("resolve in then", value);
+          } else if (res.data === 'unknown kit') {
+            self.isLoading = false;
+            self.openInputCustomerInfoPrompt(full_tracking_id, (value) => {
+              const tracking_id = full_tracking_id;
+              const comment = value;
+              const operator = self.current_loggin_user;
+              const sendData = { comment, tracking_id, operator };
+              self.$http.post('/receive-unknown-kit/', sendData).then((res) => {
+                if (res.data === "put comment success") {
+                  self.$notify.success({
+                    title: `Hi ${self.current_loggin_user},`,
+                    message: `You added ${tracking_id}`,
+                  });
+                  self.loadTable();
+                } else {
+                  self.$notify.error({
+                    title: 'Error',
+                    message: `${res.data}`
+                  });
+                }
+              });
             }, () => {
               console.log("reject in catch");
             });
+          } else if (res.data === 'timeout error') {
+            self.isLoading = false;
+            self.picked_date = '';
+            self.$notify.error({
+              title: `Hi ${self.current_loggin_user},`,
+              message: `Fedex connection timeout, please try again/later.
+              If this message keeps popping out, please contact Ethan/Zhe for assistance.`
+            });
           }
           self.loadTable();
-          self.scannedTrackingID = '';
           document.getElementById("receive_box_input").focus();
         }, function (err) {
           self.$notify.error({
@@ -185,7 +282,8 @@
         });
       },
       openInputCustomerInfoPrompt(tracking_id, resolve, reject) {
-        return this.$prompt('Please input shipper name', 'Invalid tracking ID detected', {
+        const user = this.current_loggin_user;
+        return this.$prompt(`${user}, please put some comments if you want to receive kit:`, `Invalid tracking ID: ${tracking_id}`, {
             confirmButtonText: 'OK',
             cancelButtonText: 'Cancel',
           })
@@ -205,10 +303,11 @@
             eachRow.po_number,
             eachRow.client_id,
             eachRow.client_practice_name.toUpperCase(),
-            eachRow.client_street.toUpperCase(),
-            eachRow.client_state.toUpperCase(),
-            eachRow.client_zipcode,
-            eachRow.client_phone_number
+            eachRow.client_address.toUpperCase(),
+            eachRow.client_phone_number,
+            eachRow.received_comment.toUpperCase(),
+            eachRow.is_delayed.toUpperCase(),
+            eachRow.received_time
           ].join(' ');
           return row_str.includes(self.searchFor.toUpperCase());
         })

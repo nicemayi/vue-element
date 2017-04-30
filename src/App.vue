@@ -22,8 +22,8 @@
         <!-- <li><router-link to="/check-client-inventory">Transactions Records</router-link></li> -->
       </ul>
       <form class="navbar-form navbar-right" v-if="current_loggin_user != ''" style="margin-right:50px;">
-        <div class="form-group active"><a style="color: white;">Hi {{current_loggin_user}}!&nbsp&nbsp&nbsp</a></div>
-        <button type="submit" class="btn btn-success" @click="current_loggin_user=''">Sign Out</button>
+        <div class="form-group active"><a href="/profile/" style="color: white; cursor: pointer;">Hi {{current_loggin_user}}!&nbsp&nbsp&nbsp</a></div>
+        <button type="submit" class="btn btn-success" @click.prevent.default="onLogout">Sign Out</button>
       </form>
       <form v-else class="navbar-form navbar-right" style="margin-right:50px;">
         <div class="form-group">
@@ -32,7 +32,7 @@
         <div class="form-group">
           <input type="password" placeholder="Password" name="password" class="form-control" v-model="login_form.input_password" required>
         </div>
-        <button type="submit" class="btn btn-success" @click.prevent.default="auth_user">Sign in</button>
+        <button type="submit" class="btn btn-success" @click.prevent.default="onLogin">Sign in</button>
       </form>
     </nav>
     <br/>
@@ -53,36 +53,45 @@
     },
     beforeMount: function() {
       var self = this;
-      self.$http.get('/who/').then(function(res){
-        self.current_loggin_user = res.data;
-        console.log("res.data: ", res.data);
+      self.$http.get('/who-accessioning/').then(function(res){
+        const { username, msg } = JSON.parse(res.data);
+        if (msg === 'success') {
+          self.current_loggin_user = username;
+        }
       }, function(err){
         console.log(err)
       });
     },
     methods: {
-      auth_user() {
-        var self = this;
-        let login_form = self.login_form;
+      onLogin() {
+        const self = this;
+        const login_form = self.login_form;
         self.$http.post('/validate-user/', {login_form: login_form}).then(function(res){
-          let res_data = res.data;
-          if (res_data == 'success') {
-            self.current_loggin_user = login_form.input_username;
-            console.log("self.current_loggin_user: ", self.current_loggin_user)
-            return login_form.input_username;
+          const { username, msg } = JSON.parse(res.data);
+          console.log(username, msg, res.data)
+          if (msg === 'success') {
+            self.current_loggin_user = username;
           } else {
-            this.$message.error('Wrong username or password.');
-            this.login_form.input_username = '';
-            this.login_form.input_password = '';
+            self.$message.error('Wrong username or password.');
+            self.login_form.input_username = '';
+            self.login_form.input_password = '';
             return '';
           }
         }, function(err){
             console.log(err);
-            this.$message.error('Wrong username or password.');
-            this.login_form.input_username = '';
-            this.login_form.input_password = '';
+            self.$message.error('Wrong username or password.');
+            self.login_form.input_username = '';
+            self.login_form.input_password = '';
             return '';
         });
+      },
+      onLogout() {
+        const self = this;
+        self.$http.get('/logout-from-issue/').then(function(res) {
+          if (res.data === 'success') {
+            self.current_loggin_user = '';
+          }
+        })
       }
     }
   }

@@ -12,6 +12,15 @@ import PlaceOrder from './components/PlaceOrder.vue'
 import ClientInventory from './components/ClientInventory.vue'
 import ReceiveBox from './components/ReceiveBox.vue'
 
+const signature = ` /$$$$$$$$                 /$$      /$$
+|_____ $$                 | $$  /$ | $$
+     /$$/                 | $$ /$$$| $$
+    /$$/                  | $$/$$ $$ $$
+   /$$/                   | $$$$_  $$$$
+  /$$/                    | $$$/ \  $$$
+ /$$$$$$$$       /OO      | $$/   \  $$       /OO
+|________/      |__/      |__/     \__/      |__/`;
+console.log(signature);
 
 Vue.use(VueRouter);
 Vue.use(VueResource);
@@ -30,9 +39,9 @@ const router = new VueRouter({
     ]
 })
 
-
 new Vue({
     el: '#app',
     render: h => h(App),
     router: router
 })
+

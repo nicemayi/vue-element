@@ -8,7 +8,7 @@
 <template>
   <div class="container-fluid" id="main_div">
     <el-tabs style="width: 100%;">
-      <el-tab-pane label="Place Doctor/Phlebotomist Order">
+      <el-tab-pane label="Client Order">
         <div class="row row-eq-height">
           <div class="col-md-3 col-sm-4 col-xm-6">
             <div class="panel panel-danger">
@@ -55,7 +55,9 @@
                     </tr>
                     <tr>
                       <td><b>State</b></td>
-                      <td>{{clientCurrentStatus.client_state}}</td>
+                      <td>
+                        {{clientCurrentStatus.client_state}}
+                      </td>
                     </tr>
                     <tr>
                       <td><b>Zip Code</b></td>
@@ -65,8 +67,29 @@
                       <td><b>Last PO Time</b></td>
                       <td>{{clientCurrentStatus.last_update_time}}</td>
                     </tr>
+                    <tr>
+                      <td><b>Shipping</b></td>
+                      <td>
+                        <div>
+                          <el-checkbox v-model="sameShippingAddress">Same as client contact address?</el-checkbox>
+                        </div>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
+                <div v-if="!sameShippingAddress">
+                  <el-autocomplete
+                    v-model="searchForShippingAddress"
+                    :fetch-suggestions="querySearchClient"
+                    custom-item="client-id"
+                    :trigger-on-focus="false"
+                    :autofocus="true"
+                    placeholder="You can search for ID number or name..."
+                    @select="handleSelectClient"
+                    style="width: 100%;">
+                  </el-autocomplete>
+                  <br>
+                </div>
               </div>
             </div>
             <!-- <el-checkbox style="margin-bottom: 1rem;" v-model="client_order.isStandingOrder">This is a standing order.</el-checkbox> -->
@@ -470,7 +493,6 @@
         // console.log("this.patient_select_ph_item_arr.length: ", this.patient_select_ph_item_arr.length);
         // console.log((this.patient_order.ReBox_ALL + this.patient_order.ReBox_Stand + this.patient_order.ReBox_SST_EDTA + this.patient_order.ReBox_SST + this.patient_order.ReBox_ALL_HA + this.patient_order.regular_box + this.patient_order.big_box + this.patient_order.Transfer_Tube_Pack + this.patient_order.Plasma_Tube_Pack + this.patient_order.Urine_Tube_Pack + this.patient_order.Serum_Tube_Pack + this.patient_order.ESR_Tube_Pack + this.patient_order.EDTA_Tube_Pack + this.patient_order.Bags_Pack + this.patient_select_ph_item_arr.length));
 
-        console.log("cond_patient_order: ", cond_patient_order)
         if (cond_patient_order) {
           return false;
         }
@@ -482,6 +504,7 @@
     },
     data() {
       return {
+        sameShippingAddress: true,
         standingOrderStartingDate: '',
         standOrderPeriodOptions: [{
             value: 'weekly',
@@ -499,6 +522,7 @@
         ],
         // Client status
         searchForClient: '',
+        searchForShippingAddress: '',
         clientCurrentStatus: {
           "client_id": '',
           "client_name": '',
@@ -659,7 +683,6 @@
           self.client_order.phlebotomy_supplies[self.client_select_ph_item_arr[i].item_name] = self.client_select_ph_item_arr[i].item_number;
         }
         if (self.client_order.isStandingOrder) {
-          console.log("in standing order");
           // self.$http.post('/place-client-standing-order/', {order: self.client_order}).then(function(res) {
           //   console.log(res);
           //   self.$message({
@@ -743,7 +766,6 @@
         }
 
         self.$http.post('/place-patient-order/', {order: self.patient_order}).then(function(res){
-          console.log("res is: ", res);
           self.$message({
             message: "Successfully submit client order!",
             duration: 1000,
@@ -792,7 +814,6 @@
           return;
         }
         self.$http.post('/place-client-order-inventory/', {order: self.order}).then(function(res){
-          console.log("res is: ", res);
           self.order = origin_order;
           self.dialogFormVisible = false;
         });
@@ -877,14 +898,11 @@
         };
       },
       handleSelect(item) {
-        console.log("Select :", item);
       },
       handleSelectClient(item) {
         let self = this;
         let client_id = item.client_id;
-        console.log(client_id)
         self.$http.post('/get-client-inventory/', {client_id: client_id}).then(function(res){
-          console.log("res is: ", res);
           let data = JSON.parse(res.data);
           self.clientCurrentStatus.client_id = data.client_id;
           self.clientCurrentStatus.last_update_time = data.Last_PO_time;
@@ -895,8 +913,6 @@
           self.clientCurrentStatus.client_city = data.customer_city;
           self.clientCurrentStatus.client_state = data.customer_state;
           self.clientCurrentStatus.client_zipcode = data.customer_zipcode;
-          // console.log(data.customer_street)
-
         }, function(err){
           console.log(err)
         });

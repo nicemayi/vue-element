@@ -6,18 +6,29 @@
     <el-tabs style="width: 100%;">
       <el-tab-pane label="Pending Orders">
         <div id="search_div" class="container-fluid" align="left">
-          <el-input id="search_client"
-            placeholder="search..."
-            v-model="searchText"
-            style="width: 20%;">
-          </el-input>
+          <el-form :inline="true">
+            <el-form-item>
+              <el-input id="search_client"
+                placeholder="search..."
+                v-model="searchText">
+              </el-input>
+            </el-form-item>
+            <el-form-item>
+              <button
+                :disabled="!isLogin"
+                :class="{ 'is-disabled': !isLogin, 'el-button': true, 'el-button--success': true }"
+                @click="downloadPendingOrdersCSV">
+                Download Pending Orders Log
+              </button>
+            </el-form-item>
+          <el-form>
         </div>
-        <br/>
         <el-table
           :data="filteredPendingTableData"
           @select="selectOneRowPending"
           @select-all="selectAllRowPending"
-          height="620">
+          height="620"
+          fit>
           <el-table-column
             type="selection"
             width="50">
@@ -117,12 +128,20 @@
       <el-tab-pane label="Completed Order">
         <div id="search_div_complete" class="container-fluid" align="left">
           <el-form :inline="true">
-              <el-form-item>
+              <el-form-item style="float: left;">
                 <el-input id="search_client_complete"
                   placeholder="search..."
                   v-model="searchTextComplete"
                   style="width: 100%;">
                 </el-input>
+              </el-form-item>
+              <el-form-item style="float: left;">
+                <button
+                  :disabled="!isLogin"
+                  :class="{ 'is-disabled': !isLogin, 'el-button': true, 'el-button--success': true }"
+                  @click="downloadCompletedOrdersCSV">
+                  Download Completed Orders Log
+                </button>
               </el-form-item>
               <el-form-item style="float: right;">
                   <el-button type="primary" @click="loadTable">Search Date</el-button>
@@ -138,7 +157,6 @@
               </el-form-item>
           </el-form>
         </div>
-        <br/>
         <el-table
           :data="filteredCompleteTableData"
           @select="selectOneRowCompleted"
@@ -283,9 +301,9 @@
 </template>
 
 <script>
-
-  import {printer} from '../qz/printer.js'
-  var _ = require('lodash');
+  import CSV from 'comma-separated-values';
+  import { printer } from '../qz/printer.js'
+  import _ from 'lodash';
 
   export default {
     beforeMount: function() {
@@ -310,6 +328,9 @@
 
     },
     computed: {
+      isLogin: function() {
+        return this.$parent.current_loggin_user !== '';
+      },
       start_date: function() {
           if (this.picked_date) {
               return this.picked_date[0];
@@ -317,7 +338,6 @@
               let dateNow = new Date();
               let dateToday = new Date(dateNow.getFullYear(), dateNow.getMonth(), dateNow.getDate());
               let dateSunday = new Date(dateToday.getTime()-dateToday.getDay()*24*3600*1000);
-              // console.log(dateSunday)
               return dateSunday
           }
       },
@@ -330,15 +350,12 @@
           }
       },
       searchTextUpperCase: function() {
-        console.log("this.searchText.toLowerCase(): ", this.searchText.toLowerCase())
         return this.searchText.toLowerCase();
       },
       searchTextUpperCaseComplete: function() {
-        console.log("this.searchTextComplete.toLowerCase(): ", this.searchTextComplete.toLowerCase())
         return this.searchTextComplete.toLowerCase();
       },
       current_loggin_user: function() {
-        console.log("current this.$parent.current_loggin_user: ", this.$parent.current_loggin_user)
         return this.$parent.current_loggin_user;
       },
       filteredPendingTableData: function () {
@@ -367,7 +384,9 @@
         let complete_table_data = self.completeOrders.filter(function(eachRow) {
           return (eachRow.po_packed_time) && (eachRow.po_packed_by) && (eachRow.po_verified_time) && (eachRow.po_verified_by) && (!eachRow.po_delete_time) && (!eachRow.po_delete_by)
         });
+
         return complete_table_data.filter(function (eachRow) {
+          const order_details = Object.keys(eachRow.Order_Details).join('').toLowerCase();
           let row_str = [
             eachRow.po_number,
             eachRow.client_id,
@@ -381,6 +400,7 @@
             eachRow.po_verified_time,
             eachRow.po_verified_by.toLowerCase(),
             eachRow.shipping_method.toLowerCase(),
+            order_details
           ].join(' ');
           return row_str.includes(self.searchTextUpperCaseComplete);
         })
@@ -432,6 +452,98 @@
 
     },
     methods: {
+      downloadCompletedOrdersCSV(e) {
+        if (e.clientX + e.clientY + e.screenX + e.screenY === 0) return;
+        const user = this.current_loggin_user;
+        if (!user) return;
+        const tableData = [ ...this.filteredPendingTableData ];
+        if (tableData.len === 0) return;
+
+        const file_str = `Completed Orders Log by ${user}.csv`;
+
+        const tableHeaderArr = [
+          "po_number",
+          "client_id",
+          "client_name",
+          "client_practice_name",
+          "po_create_time",
+          "po_create_by",
+          "po_packed_time",
+          "po_packed_by",
+          "po_verified_time",
+          "po_verified_by",
+          "shipping_method",
+          "comments",
+          "tracking_ids"
+        ];
+        let tableStr = tableHeaderArr.join(',') + '\n';
+        let _data = [];
+        tableData.forEach((row) => {
+          const _tmp = [];
+          for (let each of tableHeaderArr) {
+            if (each === "comments") {
+              const _comments_str = row[each].join(', ');
+              _tmp.push(_comments_str);
+            } else if (each === "tracking_ids") {
+              const tracking_ids_arr = [];
+              row[each].forEach((el) => {
+                tracking_ids_arr.push(`${el.tracking_id} (${el.track_id_type})`);
+              });
+              _tmp.push(tracking_ids_arr.join(';'));
+            } else {
+              _tmp.push(row[each]);
+            }
+          }
+          _data.push(_tmp);
+        });
+        const a = new CSV(_data, { header: tableHeaderArr }).encode();
+
+        const hiddenElement = document.createElement('a');
+        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(a);
+        hiddenElement.target = '_blank';
+        hiddenElement.download = file_str;
+        hiddenElement.click();
+      },
+      downloadPendingOrdersCSV(e) {
+        if (e.clientX + e.clientY + e.screenX + e.screenY === 0) return;
+        const user = this.current_loggin_user;
+        if (!user) return;
+        const tableData = [ ...this.filteredPendingTableData ];
+        if (tableData.len === 0) return;
+
+        const file_str = `Pending Orders Log by ${user}.csv`;
+
+        const tableHeaderArr = [
+          "tag",
+          "po_number",
+          "client_id",
+          "client_name",
+          "client_practice_name",
+          "po_create_time",
+          "po_create_by",
+          "po_packed_time",
+          "po_packed_by",
+          "shipping_method",
+          "client_address",
+          "received_comment"
+        ];
+        let tableStr = tableHeaderArr.join(',') + '\n';
+        let _data = [];
+        tableData.forEach((row) => {
+          const _tmp = [];
+          for (let each of tableHeaderArr) {
+            _tmp.push(row[each]);
+          }
+          _data.push(_tmp);
+        });
+        const a = new CSV(_data, { header: tableHeaderArr }).encode();
+
+        const hiddenElement = document.createElement('a');
+        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(a);
+        hiddenElement.target = '_blank';
+        hiddenElement.download = file_str;
+        hiddenElement.click();
+      },
       addLabel(row) {
         let self = this;
         self.selectedRow = row;
@@ -532,7 +644,6 @@
                   "comment": comment,
                   "po_number": po_number
                 }).then(function(res){
-                  console.log("successfully add comments, res is: ", res.data);
                   location.reload();
                 }, function(err){
                   console.log(err)
@@ -721,7 +832,6 @@
           this.dialogCheckOrder = !this.dialogCheckOrder;
           this.selectedRow = row;
           // console.log(row);
-          console.log("row.tracking_ids: ", row.client_address);
       },
       clickCheckOrderCellComplete(row) {
           this.dialogCheckOrderComplete = !this.dialogCheckOrderComplete;
@@ -742,7 +852,6 @@
             "operator": operator,
             "po_number": po_number
           }).then(function(res){
-            console.log("successfully delete order, res is: ", res.data);
           }, function(err){
             console.log(err)
           });
