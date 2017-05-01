@@ -1,6 +1,7 @@
 'use strict';
 // var RSVP = require('./rsvp-3.1.0.min.js')
-import * as RSVP from './rsvp-3.1.0.min.js'
+// import * as RSVP from './rsvp-3.1.0.min.js'
+import RSVP from 'rsvp';
 // import * as sha256 from './sha-256.min.js'
 import * as sha256 from './sha256.js'
 // const hasher = new sha256.Hash();

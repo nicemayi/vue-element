@@ -9,6 +9,18 @@ import 'element-ui/lib/theme-default/index.css'
 
 import ShippingPending from './components/ShippingPending.vue'
 import PlaceOrder from './components/PlaceOrder.vue'
+import ClientInventory from './components/ClientInventory.vue'
+import ReceiveBox from './components/ReceiveBox.vue'
+
+const signature = ` /$$$$$$$$                 /$$      /$$
+|_____ $$                 | $$  /$ | $$
+     /$$/                 | $$ /$$$| $$
+    /$$/                  | $$/$$ $$ $$
+   /$$/                   | $$$$_  $$$$
+  /$$/                    | $$$/ \  $$$
+ /$$$$$$$$       /OO      | $$/   \  $$       /OO
+|________/      |__/      |__/     \__/      |__/`;
+console.log(signature);
 
 Vue.use(VueRouter);
 Vue.use(VueResource);
@@ -19,16 +31,17 @@ Vue.use(Sugar);
 
 const router = new VueRouter({
     routes: [
-        // { path: '/', component: ShippingPending },
         { path: '/', redirect: '/shipping-pending' },
         { path: '/shipping-pending', component: ShippingPending },
-        { path: '/place-order', component: PlaceOrder}
+        { path: '/place-order', component: PlaceOrder},
+        { path: '/check-client-inventory', component: ClientInventory},
+        { path: '/receive-box', component: ReceiveBox}
     ]
 })
-
 
 new Vue({
     el: '#app',
     render: h => h(App),
     router: router
 })
+

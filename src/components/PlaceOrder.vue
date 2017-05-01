@@ -8,7 +8,7 @@
 <template>
   <div class="container-fluid" id="main_div">
     <el-tabs style="width: 100%;">
-      <el-tab-pane label="Place Doctor/Phlebotomist Order">
+      <el-tab-pane label="Client Order">
         <div class="row row-eq-height">
           <div class="col-md-3 col-sm-4 col-xm-6">
             <div class="panel panel-danger">
@@ -55,7 +55,9 @@
                     </tr>
                     <tr>
                       <td><b>State</b></td>
-                      <td>{{clientCurrentStatus.client_state}}</td>
+                      <td>
+                        {{clientCurrentStatus.client_state}}
+                      </td>
                     </tr>
                     <tr>
                       <td><b>Zip Code</b></td>
@@ -65,8 +67,29 @@
                       <td><b>Last PO Time</b></td>
                       <td>{{clientCurrentStatus.last_update_time}}</td>
                     </tr>
+                    <tr>
+                      <td><b>Shipping</b></td>
+                      <td>
+                        <div>
+                          <el-checkbox v-model="sameShippingAddress">Same as client contact address?</el-checkbox>
+                        </div>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
+                <div v-if="!sameShippingAddress">
+                  <el-autocomplete
+                    v-model="searchForShippingAddress"
+                    :fetch-suggestions="querySearchClient"
+                    custom-item="client-id"
+                    :trigger-on-focus="false"
+                    :autofocus="true"
+                    placeholder="You can search for ID number or name..."
+                    @select="handleSelectClient"
+                    style="width: 100%;">
+                  </el-autocomplete>
+                  <br>
+                </div>
               </div>
             </div>
             <el-button type="danger" :disabled="!isValidClientOrder" @click="submitClientOrder">Place Client Order</el-button>
@@ -191,7 +214,8 @@
                   <el-option
                     v-for="each_option in shipping_options"
                     :label="each_option.label"
-                    :value="each_option.value">
+                    :value="each_option.value"
+                    :key="each_option.label">
                   </el-option>
                 </el-select>
               </div>
@@ -235,16 +259,18 @@
                       <el-option
                         v-for="patient_state in States"
                         :label="patient_state.name"
-                        :value="patient_state.abbreviation">
+                        :value="patient_state.abbreviation"
+                        :key="patient_state.abbreviation">
                       </el-option>
                     </el-select>
                   </el-form-item>
                   <el-form-item label="Zip Code">
                     <el-input placeholder="Zip Code" v-model="patient_order.patient_zipcode"></el-input>
                   </el-form-item>
+                </el-form>
               </div>
             </div>
-            <el-button type="danger" :disabled="!isValidPatientOrder" @click="submitPatientOrder">Place Client Order</el-button>
+            <el-button type="danger" :disabled="!isValidPatientOrder" @click="submitPatientOrder">Place Patient Order</el-button>
           </div>
           <div class="col-md-3 col-sm-4 col-xm-6">
             <div class="panel panel-primary">
@@ -324,6 +350,16 @@
                   v-model="patient_select_ph_item"
                   @select="handleSelect"
                   >
+                  <el-option-group
+                    :key="group.label"
+                    v-for="group in ph_items"
+                    :label="group.label">
+                    <el-option
+                      :key="item.value"
+                      v-for="item in group.options"
+                      :value="item.value">
+                    </el-option>
+                  </el-option-group>
                 </el-autocomplete>
                 <br/>
                 <el-form :inline="true">
@@ -364,6 +400,7 @@
               <div class="panel-body">
                 <el-select placeholder="Select" v-model="patient_order.shipping_method">
                   <el-option
+                    :key="each_option.value"
                     v-for="each_option in shipping_options"
                     :label="each_option.label"
                     :value="each_option.value">
@@ -398,6 +435,7 @@
       var item = ctx.props.item;
       return h('li', ctx.data, [
         h('h4', { attrs: { class: 'name' } }, [item.client_practice_name]),
+        h('h5', { attrs: { class: 'name' } }, [item.client_name]),
         h('div', { attrs: { class: 'addr' } }, [item.client_id])
       ]);
     },
@@ -446,7 +484,6 @@
         // console.log("this.patient_select_ph_item_arr.length: ", this.patient_select_ph_item_arr.length);
         // console.log((this.patient_order.ReBox_ALL + this.patient_order.ReBox_Stand + this.patient_order.ReBox_SST_EDTA + this.patient_order.ReBox_SST + this.patient_order.ReBox_ALL_HA + this.patient_order.regular_box + this.patient_order.big_box + this.patient_order.Transfer_Tube_Pack + this.patient_order.Plasma_Tube_Pack + this.patient_order.Urine_Tube_Pack + this.patient_order.Serum_Tube_Pack + this.patient_order.ESR_Tube_Pack + this.patient_order.EDTA_Tube_Pack + this.patient_order.Bags_Pack + this.patient_select_ph_item_arr.length));
 
-        console.log("cond_patient_order: ", cond_patient_order)
         if (cond_patient_order) {
           return false;
         }
@@ -458,8 +495,25 @@
     },
     data() {
       return {
+        sameShippingAddress: true,
+        standingOrderStartingDate: '',
+        standOrderPeriodOptions: [{
+            value: 'weekly',
+            label: 'Weekly'
+          },{
+            value: 'bi-weekly',
+            label: 'Bi-weekly'
+          },{
+            value: 'monthly',
+            label: 'Monthly'
+          },{
+            value: 'bi-monthly',
+            label: 'Bi-monthly'
+          }
+        ],
         // Client status
         searchForClient: '',
+        searchForShippingAddress: '',
         clientCurrentStatus: {
           "client_id": '',
           "client_name": '',
@@ -472,6 +526,7 @@
           "client_zipcode": ""
         },
         client_order: {
+          isStandingOrder: false,
           operator: this.current_loggin_user,
           client_id: '',
           ReBox_ALL: 0,
@@ -555,10 +610,49 @@
           label: 'Priority Overnight'
         }],
         ph_items: [
-          { "value": "VA. requisition form"},
-          { "value": "VA. requisition form Carbon"},
-          { "value": "VG. requisition form"},
-          { "value": "VW. requisition form"},
+          {
+            label: "Regular Items",
+            options: [
+              { "value": "VA. requisition form"},
+              { "value": "VA. requisition form Carbon"},
+              { "value": "VG. requisition form"},
+              { "value": "VW. requisition form"},
+              { "value": "Butterfly Needles w/ regular hubs"},
+              { "value": "Straight Needles w/ safety hubs"},
+              { "value": "Tourniquets"},
+              { "value": "Coban wrap"},
+              { "value": "Medical tape"},
+              { "value": "Gauze"},
+              { "value": "Alcohol prep"},
+              { "value": "Bandages"},
+              { "value": "Sharps container"},
+              { "value": "Tube rack"},
+              { "value": "Pipettes"},
+              { "value": "Urine cups"},
+              { "value": "Patient kit ins (patient/phleb instructions, specimen handling)"},
+              { "value": "Wheat Zoomer Instructions"},
+              { "value": "VA brochure" },
+              { "value": "Gut Pac brochure" },
+              { "value": "Wheat Zoomer brochure" },
+              { "value": "Patient connection flyer" },
+              { "value": "Cardiax brochure" },
+              { "value": "VA folder" },
+              { "value": "VW folder" },
+            ]
+          }, {
+            label: "Wheat Zoomer Kits",
+            options: [
+              {"value": 'Cardiax Kit'},
+              {"value": 'Neurological Kit'},
+              {"value": 'Metabolic Weight Loss Kit'},
+              {"value": 'Food Sensitivity Kit'},
+              {"value": 'Gut-PAC Kit'},
+              {"value": 'Micronutrients Kit'},
+              {"value": 'Respiratory Virus Kit'},
+              {"value": 'Wheat Zoomer Kit'},
+              {"value": 'Buccal Swab Kit'}
+            ]
+          }
         ],
       };
     },
@@ -581,16 +675,29 @@
         for (let i=0; i < self.client_select_ph_item_arr.length; i++) {
           self.client_order.phlebotomy_supplies[self.client_select_ph_item_arr[i].item_name] = self.client_select_ph_item_arr[i].item_number;
         }
-        self.$http.post('/place-client-order-inventory/', {order: self.client_order}).then(function(res){
-          console.log("res is: ", res);
-          self.$message({
-            message: "Successfully submit client order!",
-            duration: 1000,
-            onClose: function() {
-              location.reload();
-            }
+        if (self.client_order.isStandingOrder) {
+          // self.$http.post('/place-client-standing-order/', {order: self.client_order}).then(function(res) {
+          //   console.log(res);
+          //   self.$message({
+          //     message: "Successfully submit standing order!",
+          //     duration: 1000,
+          //     onClose: function() {
+          //       location.reload()
+          //     }
+          //   });
+          // })
+        } else {
+          // console.log("here");
+          self.$http.post('/place-client-order-inventory/', {order: self.client_order}).then((res) => {
+            self.$message({
+              message: "Successfully submit client order!",
+              duration: 1000,
+              onClose: function() {
+                location.reload();
+              }
+            });
           });
-        });
+        }
       },
       clearClientOrder() {
         this.client_order = {
@@ -613,7 +720,8 @@
           Bags_Pack: 0,
           phlebotomy_supplies: {},
           shipping_method: "",
-          comments: ''
+          comments: '',
+          isStandardingOrder: false,
         }
       },
       submitPatientOrder() {
@@ -652,7 +760,6 @@
         }
 
         self.$http.post('/place-patient-order/', {order: self.patient_order}).then(function(res){
-          console.log("res is: ", res);
           self.$message({
             message: "Successfully submit client order!",
             duration: 1000,
@@ -702,7 +809,6 @@
           return;
         }
         self.$http.post('/place-client-order-inventory/', {order: self.order}).then(function(res){
-          console.log("res is: ", res);
           self.order = origin_order;
           self.dialogFormVisible = false;
         });
@@ -726,12 +832,17 @@
         if (flag == 'patient-order') {
           self.order = origin_order;
           self.validatePatientOrder();
-          console.log(self.order);
           self.dialogFormVisible = true;
         }
       },
       querySearch(queryString, cb) {
-        var ph_items = this.ph_items;
+        var ph_items = this.ph_items.filter((el) => {
+          return el.label === "Regular Items";
+        })[0].options;
+        var wz_items = this.ph_items.filter((el) => {
+          return el.label === "Wheat Zoomer Kits";
+        })[0].options;
+        var ph_items = ph_items.concat(wz_items);
         var results = queryString ? ph_items.filter(this.createFilter(queryString)) : ph_items;
         cb(results);
       },
@@ -775,20 +886,18 @@
       },
       createFilterClient(queryString) {
         return (searchSuggestions) => {
-          let isName = (searchSuggestions.client_name.indexOf(queryString.toUpperCase()) >= 0);
-          let isID = (searchSuggestions.client_id.indexOf(queryString.toUpperCase()) >= 0);
-          let isPracticeName = (searchSuggestions.client_practice_name.indexOf(queryString.toUpperCase()) >= 0);
+          let isName = (searchSuggestions.client_name.includes(queryString.toUpperCase()));
+          let isID = (searchSuggestions.client_id.includes(queryString.toUpperCase()));
+          let isPracticeName = (searchSuggestions.client_practice_name.includes(queryString.toUpperCase()));
           return isName | isID | isPracticeName
         };
       },
       handleSelect(item) {
-        console.log("Select :", item);
       },
       handleSelectClient(item) {
         let self = this;
         let client_id = item.client_id;
         self.$http.post('/get-client-inventory/', {client_id: client_id}).then(function(res){
-          console.log("res is: ", res);
           let data = JSON.parse(res.data);
           self.clientCurrentStatus.client_id = data.client_id;
           self.clientCurrentStatus.last_update_time = data.Last_PO_time;
@@ -799,8 +908,6 @@
           self.clientCurrentStatus.client_city = data.customer_city;
           self.clientCurrentStatus.client_state = data.customer_state;
           self.clientCurrentStatus.client_zipcode = data.customer_zipcode;
-          // console.log(data.customer_street)
-
         }, function(err){
           console.log(err)
         });

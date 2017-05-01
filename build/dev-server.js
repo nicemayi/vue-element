@@ -47,10 +47,13 @@ Object.keys(proxyTable).forEach(function (context) {
   app.use(proxyMiddleware(context, options))
 })
 app.use(proxyMiddleware('/shipping-pending-orders/', {target: 'http://localhost:5000'}))
-app.use(proxyMiddleware('/who/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/who-accessioning/', {target: 'http://localhost:5000'}))
 app.use(proxyMiddleware('/get-tracking-id-label/', {target: 'http://localhost:5000'}))
 app.use(proxyMiddleware('/shipping-complete-orders/', {target: 'http://localhost:5000'}))
 app.use(proxyMiddleware('/add-shipping-label/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/get-clients/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/get-client-inventory/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/get-order-labels/', {target: 'http://localhost:5000'}))
 
 app.use(proxyMiddleware('/client_info_typeahead', {target: 'http://192.168.10.121:5000'}))
 app.use(proxyMiddleware('/client_order', {target: 'http://192.168.10.121:5000'}))
@@ -58,10 +61,14 @@ app.use(proxyMiddleware('/client-shipping-pending-table/', {target: 'http://loca
 app.use(proxyMiddleware('/client-shipping-finish-table/', {target: 'http://localhost:5000'}))
 app.use(proxyMiddleware('/client-update-shipping-table/', {target: 'http://localhost:5000'}))
 app.use(proxyMiddleware('/auth-user/', {target: 'http://localhost:5000'}))
-app.use(proxyMiddleware('/get-clients/', {target: 'http://localhost:5000'}))
-app.use(proxyMiddleware('/get-client-inventory/', {target: 'http://localhost:5000'}))
 
-
+app.use(proxyMiddleware('/load-receive-table/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/receive-box/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/validate-user/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/place-client-order-inventory/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/place-client-standing-order/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/receive-unknown-kit/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/logout-from-issue/', {target: 'http://localhost:5000'}))
 // app.use(proxyMiddleware('/', {target: 'http://localhost:5000'}))
 
 // handle fallback for HTML5 history API

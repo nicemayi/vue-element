@@ -5,19 +5,33 @@
   <div class="container-fluid" id="main_div" align="center">
     <el-tabs style="width: 100%;">
       <el-tab-pane label="Pending Orders">
-        <div id="search_div" class="container-fluid" align="left">
-          <el-input id="search_client"
-            placeholder="search..."
-            v-model="searchText"
-            style="width: 20%;">
-          </el-input>
+        <div
+          id="search_div"
+          class="container-fluid"
+          align="left">
+          <el-form :inline="true">
+            <el-form-item>
+              <el-input id="search_client"
+                placeholder="search..."
+                v-model="searchText">
+              </el-input>
+            </el-form-item>
+            <el-form-item>
+              <button
+                :disabled="!isLogin"
+                :class="{ 'is-disabled': !isLogin, 'el-button': true, 'el-button--success': true }"
+                @click="downloadPendingOrdersCSV">
+                Download Pending Orders Log
+              </button>
+            </el-form-item>
+          </el-form>
         </div>
-        <br/>
         <el-table
           :data="filteredPendingTableData"
           @select="selectOneRowPending"
           @select-all="selectAllRowPending"
-          height="620">
+          height="620"
+          fit>
           <el-table-column
             type="selection"
             width="50">
@@ -113,18 +127,39 @@
             <el-button type="danger" :disabled="multipleSelection.length == 0" @click="printOrderDetail">Print Order Details</el-button>
           </span>
         </div>
-
-
       </el-tab-pane>
       <el-tab-pane label="Completed Order">
         <div id="search_div_complete" class="container-fluid" align="left">
-          <el-input id="search_client_complete"
-            placeholder="search..."
-            v-model="searchTextComplete"
-            style="width: 20%;">
-          </el-input>
+          <el-form :inline="true">
+            <el-form-item style="float: left;">
+              <el-input id="search_client_complete"
+                placeholder="search..."
+                v-model="searchTextComplete"
+                style="width: 100%;">
+              </el-input>
+            </el-form-item>
+            <el-form-item style="float: left;">
+              <button
+                :disabled="!isLogin"
+                :class="{ 'is-disabled': !isLogin, 'el-button': true, 'el-button--success': true }"
+                @click="downloadCompletedOrdersCSV">
+                Download Completed Orders Log
+              </button>
+            </el-form-item>
+            <el-form-item style="float: right;">
+              <el-button type="primary" @click="loadTable">Search Date</el-button>
+            </el-form-item>
+            <el-form-item style="float: right;">
+              <el-date-picker
+                type="daterange"
+                align="right"
+                placeholder="Pick a range"
+                v-model="picked_date"
+                :picker-options="pickerOptions">
+              </el-date-picker>
+            </el-form-item>
+          </el-form>
         </div>
-        <br/>
         <el-table
           :data="filteredCompleteTableData"
           @select="selectOneRowCompleted"
@@ -187,7 +222,7 @@
             prop="tag"
             label="Check Order Detail"
             inline-template>
-            <el-button type="primary" icon="edit" size="mini" @click="clickCheckOrderCell(row)">Check Order</el-button>
+            <el-button type="primary" icon="edit" size="mini" @click="clickCheckOrderCellComplete(row)">Check Order</el-button>
           </el-table-column>
         </el-table>
         <hr/>
@@ -203,6 +238,8 @@
 
     <el-dialog top= "5%" title='Order Details' v-model="dialogCheckOrder">
       <div align="left">
+      <h3>{{this.selectedRow.client_address}}</h3>
+      <hr/>
         <table class="table">
           <tbody>
             <tr><td><b>PO Number</b></td><td>{{this.selectedRow.po_number}}</td></tr>
@@ -213,9 +250,41 @@
             <hr/>
             <div v-if="this.selectedRow.tracking_ids && this.selectedRow.tracking_ids.length > 0">
               <h3>Tracking ID</h3>
-              <el-button-group v-for="each_tracking_id in this.selectedRow.tracking_ids">
+              <el-button-group :key="each_tracking_id" v-for="each_tracking_id in this.selectedRow.tracking_ids">
                 <el-tooltip class="item" effect="dark" content="Click me to print label" placement="bottom">
                   <el-button :type="(each_tracking_id.track_id_type == 'OUT')? 'success': 'danger'" style="margin-right: 10px;" @click="printTrackingID(each_tracking_id.tracking_id)">({{each_tracking_id.track_id_type}}) {{each_tracking_id.tracking_id}}</el-button>
+                </el-tooltip>
+              </el-button-group>
+            </div>
+            <hr/>
+            <div v-if="this.selectedRow.comments && this.selectedRow.comments.length > 0">
+              <h3>Comments</h3>
+              <ul>
+                <li v-for="each_comment in this.selectedRow.comments">{{each_comment}}</li>
+              </ul>
+            </div>
+          </tbody>
+        </table>
+      </div>
+    </el-dialog>
+
+    <el-dialog top= "5%" title='Order Details' v-model="dialogCheckOrderComplete">
+      <div align="left">
+      <h3>{{this.selectedRow.client_address}}</h3>
+      <hr/>
+        <table class="table">
+          <tbody>
+            <tr><td><b>PO Number</b></td><td>{{this.selectedRow.po_number}}</td></tr>
+            <tr v-for="(value, key) in this.selectedRow.Order_Details">
+              <td><b>{{key.split('_').map(function(el) {return el.toUpperCase()}).join(' ')}}</b></td>
+              <td>{{value}}</td>
+            </tr>
+            <hr/>
+            <div v-if="this.selectedRow.tracking_ids && this.selectedRow.tracking_ids.length > 0">
+              <h3>Tracking ID</h3>
+              <el-button-group :key="each_tracking_id" v-for="each_tracking_id in this.selectedRow.tracking_ids">
+                <el-tooltip class="item" effect="dark" content="Click me to see where the package is!" placement="bottom">
+                  <el-button :type="(each_tracking_id.track_id_type == 'OUT')? 'success': 'danger'" style="margin-right: 10px;" @click="checkTrackingID(each_tracking_id.tracking_id)">({{each_tracking_id.track_id_type}}) {{each_tracking_id.tracking_id}}</el-button>
                 </el-tooltip>
               </el-button-group>
             </div>
@@ -235,36 +304,61 @@
 </template>
 
 <script>
-
-  import {printer} from '../qz/printer.js'
+  import CSV from 'comma-separated-values';
+  import { printer } from '../qz/printer.js'
+  import _ from 'lodash';
 
   export default {
     beforeMount: function() {
-      var self = this;
+      let self = this;
       self.$http.get('/shipping-pending-orders/').then(function(res){
         let res_status = res.data.status;
         self.pendingOrders = JSON.parse(res.data);
       }, function(err){
         console.log(err)
       });
-      self.$http.get('/shipping-complete-orders/').then(function(res){
+
+      let start_date = self.start_date;
+      let end_date = self.end_date;
+      self.$http.post('/shipping-complete-orders/', {start_date, end_date}).then(function(res){
         let res_status = res.data.status;
         self.completeOrders = JSON.parse(res.data);
       }, function(err){
-        console.log(err)
+          console.log(err)
       });
+
+      self.loadTable();
+
     },
     computed: {
+      isLogin: function() {
+        return this.$parent.current_loggin_user !== '';
+      },
+      start_date: function() {
+          if (this.picked_date) {
+              return this.picked_date[0];
+          } else{
+              let dateNow = new Date();
+              let dateToday = new Date(dateNow.getFullYear(), dateNow.getMonth(), dateNow.getDate());
+              let dateSunday = new Date(dateToday.getTime()-dateToday.getDay()*24*3600*1000);
+              return dateSunday
+          }
+      },
+      end_date: function() {
+          if (this.picked_date) {
+              return this.picked_date[1];
+          } else {
+              let end_date = new Date();
+              return end_date
+          }
+      },
       searchTextUpperCase: function() {
-        console.log("this.searchText.toLowerCase(): ", this.searchText.toLowerCase())
         return this.searchText.toLowerCase();
       },
       searchTextUpperCaseComplete: function() {
-        console.log("this.searchTextComplete.toLowerCase(): ", this.searchTextComplete.toLowerCase())
         return this.searchTextComplete.toLowerCase();
       },
       current_loggin_user: function() {
-        console.log("current this.$parent.current_loggin_user: ", this.$parent.current_loggin_user)
         return this.$parent.current_loggin_user;
       },
       filteredPendingTableData: function () {
@@ -293,7 +387,9 @@
         let complete_table_data = self.completeOrders.filter(function(eachRow) {
           return (eachRow.po_packed_time) && (eachRow.po_packed_by) && (eachRow.po_verified_time) && (eachRow.po_verified_by) && (!eachRow.po_delete_time) && (!eachRow.po_delete_by)
         });
+
         return complete_table_data.filter(function (eachRow) {
+          const order_details = Object.keys(eachRow.Order_Details).join('').toLowerCase();
           let row_str = [
             eachRow.po_number,
             eachRow.client_id,
@@ -307,6 +403,7 @@
             eachRow.po_verified_time,
             eachRow.po_verified_by.toLowerCase(),
             eachRow.shipping_method.toLowerCase(),
+            order_details
           ].join(' ');
           return row_str.includes(self.searchTextUpperCaseComplete);
         })
@@ -319,16 +416,137 @@
         multipleSelection: [],
         multipleSelectionComplete: [],
         dialogCheckOrder: false,
+        dialogCheckOrderComplete: false,
         selectedRow: {},
         selectedRowComplete: {},
         pendingOrders: [],
         completeOrders: [],
+        picked_date: '',
+        pickerOptions: {
+          shortcuts: [{
+            text: 'Last week',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: 'Last month',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: 'Last 3 months',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
+        },
       }
     },
     events: {
 
     },
     methods: {
+      downloadCompletedOrdersCSV(e) {
+        if (e.clientX + e.clientY + e.screenX + e.screenY === 0) return;
+        const user = this.current_loggin_user;
+        if (!user) return;
+        const tableData = [ ...this.filteredPendingTableData ];
+        if (tableData.len === 0) return;
+
+        const file_str = `Completed Orders Log by ${user}.csv`;
+
+        const tableHeaderArr = [
+          "po_number",
+          "client_id",
+          "client_name",
+          "client_practice_name",
+          "po_create_time",
+          "po_create_by",
+          "po_packed_time",
+          "po_packed_by",
+          "po_verified_time",
+          "po_verified_by",
+          "shipping_method",
+          "comments",
+          "tracking_ids"
+        ];
+        let tableStr = tableHeaderArr.join(',') + '\n';
+        let _data = [];
+        tableData.forEach((row) => {
+          const _tmp = [];
+          for (let each of tableHeaderArr) {
+            if (each === "comments") {
+              const _comments_str = row[each].join(', ');
+              _tmp.push(_comments_str);
+            } else if (each === "tracking_ids") {
+              const tracking_ids_arr = [];
+              row[each].forEach((el) => {
+                tracking_ids_arr.push(`${el.tracking_id} (${el.track_id_type})`);
+              });
+              _tmp.push(tracking_ids_arr.join(';'));
+            } else {
+              _tmp.push(row[each]);
+            }
+          }
+          _data.push(_tmp);
+        });
+        const a = new CSV(_data, { header: tableHeaderArr }).encode();
+
+        const hiddenElement = document.createElement('a');
+        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(a);
+        hiddenElement.target = '_blank';
+        hiddenElement.download = file_str;
+        hiddenElement.click();
+      },
+      downloadPendingOrdersCSV(e) {
+        if (e.clientX + e.clientY + e.screenX + e.screenY === 0) return;
+        const user = this.current_loggin_user;
+        if (!user) return;
+        const tableData = [ ...this.filteredPendingTableData ];
+        if (tableData.len === 0) return;
+
+        const file_str = `Pending Orders Log by ${user}.csv`;
+
+        const tableHeaderArr = [
+          "tag",
+          "po_number",
+          "client_id",
+          "client_name",
+          "client_practice_name",
+          "po_create_time",
+          "po_create_by",
+          "po_packed_time",
+          "po_packed_by",
+          "shipping_method",
+          "client_address",
+          "received_comment"
+        ];
+        let tableStr = tableHeaderArr.join(',') + '\n';
+        let _data = [];
+        tableData.forEach((row) => {
+          const _tmp = [];
+          for (let each of tableHeaderArr) {
+            _tmp.push(row[each]);
+          }
+          _data.push(_tmp);
+        });
+        const a = new CSV(_data, { header: tableHeaderArr }).encode();
+
+        const hiddenElement = document.createElement('a');
+        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(a);
+        hiddenElement.target = '_blank';
+        hiddenElement.download = file_str;
+        hiddenElement.click();
+      },
       addLabel(row) {
         let self = this;
         self.selectedRow = row;
@@ -361,6 +579,14 @@
             message: `Server error, please contact Zhe or Ethan.`,
           });
         })
+      },
+      checkTrackingID(tracking_id) {
+        // console.log("tracking_id: ", tracking_id);
+        let url = `https://www.fedex.com/apps/fedextrack/?tracknumbers=${tracking_id}&cntry_code=us`
+        window.open(
+          url,
+          '_blank'
+        );
       },
       printTrackingID(tracking_id) {
         let self = this;
@@ -395,11 +621,13 @@
         }, function(err){
           console.log(err)
         });
-        self.$http.get('/shipping-complete-orders/').then(function(res){
+        let start_date = self.start_date;
+        let end_date = self.end_date;
+        self.$http.post('/shipping-complete-orders/', {start_date, end_date}).then(function(res){
           let res_status = res.data.status;
           self.completeOrders = JSON.parse(res.data);
         }, function(err){
-          console.log(err)
+            console.log(err)
         });
       },
       addCommentCell(row) {
@@ -419,7 +647,6 @@
                   "comment": comment,
                   "po_number": po_number
                 }).then(function(res){
-                  console.log("successfully add comments, res is: ", res.data);
                   location.reload();
                 }, function(err){
                   console.log(err)
@@ -465,7 +692,7 @@
           self.selectedRow = {};
           self.loadTable()
         }, function(err){
-          console.log(err);
+          // console.log(err);
           self.multipleSelection.length = 0;
           self.selectedRow = {};
           self.loadTable()
@@ -477,13 +704,42 @@
         let po_numbers = [];
         let current_loggin_user = self.current_loggin_user;
         let operator = self.current_loggin_user;
-        for (let i=0; i<self.multipleSelection.length; i++) {
-
+        for (let i=0; i < self.multipleSelection.length; i++) {
+          let current_po = self.multipleSelection[i].po_number;
           let po_packed_by = self.multipleSelection[i].po_packed_by;
           let po_packed_time= self.multipleSelection[i].po_packed_time;
           let tag = self.multipleSelection[i].tag;
-
-          if ((po_packed_time != '') && (po_packed_by != '') && (current_loggin_user != '') && (current_loggin_user != po_packed_by) && (tag == 'Packed')) {
+          let conditions = {
+            isValidPackedTime: po_packed_time != '',
+            isValidPackedBy: po_packed_by != '',
+            isLoggedin: current_loggin_user != '',
+            isLoggedinNotPackedby: current_loggin_user != po_packed_by,
+            isTagPacked: tag == 'Packed'
+          };
+          let sum_conditions = 0;
+          let total_conditions = 0;
+          _.mapValues(conditions , (val) => {
+            if (val) {
+              sum_conditions++;
+            }
+            total_conditions++;
+          });
+          if (!conditions.isLoggedin) {
+            self.$message.error(`You must login first.`);
+          }
+          if (!conditions.isTagPacked) {
+            self.$message.error(`po number ${current_po} has not been packed yet.`);
+          }
+          if (!conditions.isValidPackedBy) {
+            self.$message.error(`Invalid packed-by information`);
+          }
+          if (!conditions.isValidPackedTime) {
+            self.$message.error(`Invalid packed-time information.`);
+          }
+          if (!conditions.isLoggedinNotPackedby) {
+            self.$message.error(`po number ${current_po} is packed by ${po_packed_by}, which can not be verified by ${current_loggin_user}.`);
+          }
+          if (sum_conditions == total_conditions) {
             po_numbers.push(self.multipleSelection[i].po_number);
           }
         }
@@ -495,12 +751,12 @@
         }).then(function(res){
           self.multipleSelection.length = 0;
           self.selectedRow = {};
-          self.loadTable()
+          self.loadTable();
         }, function(err){
-          console.log(err)
+          // console.log(err)
           self.multipleSelection.length = 0;
           self.selectedRow = {};
-          self.loadTable()
+          self.loadTable();
         });
       },
       printOrderDetail: function() {
@@ -578,8 +834,13 @@
       clickCheckOrderCell(row) {
           this.dialogCheckOrder = !this.dialogCheckOrder;
           this.selectedRow = row;
-          console.log(row.tracking_ids);
-          console.log(row.tracking_ids.length);
+          // console.log(row);
+      },
+      clickCheckOrderCellComplete(row) {
+          this.dialogCheckOrderComplete = !this.dialogCheckOrderComplete;
+          this.selectedRow = row;
+          // console.log(row);
+          // console.log("row.tracking_ids: ", row.client_address);
       },
       clickDeleteOrderCell(row) {
         this.selectedRow = row;
@@ -594,7 +855,6 @@
             "operator": operator,
             "po_number": po_number
           }).then(function(res){
-            console.log("successfully delete order, res is: ", res.data);
           }, function(err){
             console.log(err)
           });
