@@ -5,7 +5,10 @@
   <div class="container-fluid" id="main_div" align="center">
     <el-tabs style="width: 100%;">
       <el-tab-pane label="Pending Orders">
-        <div id="search_div" class="container-fluid" align="left">
+        <div
+          id="search_div"
+          class="container-fluid"
+          align="left">
           <el-form :inline="true">
             <el-form-item>
               <el-input id="search_client"
@@ -21,7 +24,7 @@
                 Download Pending Orders Log
               </button>
             </el-form-item>
-          <el-form>
+          </el-form>
         </div>
         <el-table
           :data="filteredPendingTableData"
@@ -128,33 +131,33 @@
       <el-tab-pane label="Completed Order">
         <div id="search_div_complete" class="container-fluid" align="left">
           <el-form :inline="true">
-              <el-form-item style="float: left;">
-                <el-input id="search_client_complete"
-                  placeholder="search..."
-                  v-model="searchTextComplete"
-                  style="width: 100%;">
-                </el-input>
-              </el-form-item>
-              <el-form-item style="float: left;">
-                <button
-                  :disabled="!isLogin"
-                  :class="{ 'is-disabled': !isLogin, 'el-button': true, 'el-button--success': true }"
-                  @click="downloadCompletedOrdersCSV">
-                  Download Completed Orders Log
-                </button>
-              </el-form-item>
-              <el-form-item style="float: right;">
-                  <el-button type="primary" @click="loadTable">Search Date</el-button>
-              </el-form-item>
-              <el-form-item style="float: right;">
-                  <el-date-picker
-                      type="daterange"
-                      align="right"
-                      placeholder="Pick a range"
-                      v-model="picked_date"
-                      :picker-options="pickerOptions">
-                  </el-date-picker>
-              </el-form-item>
+            <el-form-item style="float: left;">
+              <el-input id="search_client_complete"
+                placeholder="search..."
+                v-model="searchTextComplete"
+                style="width: 100%;">
+              </el-input>
+            </el-form-item>
+            <el-form-item style="float: left;">
+              <button
+                :disabled="!isLogin"
+                :class="{ 'is-disabled': !isLogin, 'el-button': true, 'el-button--success': true }"
+                @click="downloadCompletedOrdersCSV">
+                Download Completed Orders Log
+              </button>
+            </el-form-item>
+            <el-form-item style="float: right;">
+              <el-button type="primary" @click="loadTable">Search Date</el-button>
+            </el-form-item>
+            <el-form-item style="float: right;">
+              <el-date-picker
+                type="daterange"
+                align="right"
+                placeholder="Pick a range"
+                v-model="picked_date"
+                :picker-options="pickerOptions">
+              </el-date-picker>
+            </el-form-item>
           </el-form>
         </div>
         <el-table
@@ -247,7 +250,7 @@
             <hr/>
             <div v-if="this.selectedRow.tracking_ids && this.selectedRow.tracking_ids.length > 0">
               <h3>Tracking ID</h3>
-              <el-button-group v-for="each_tracking_id in this.selectedRow.tracking_ids">
+              <el-button-group :key="each_tracking_id" v-for="each_tracking_id in this.selectedRow.tracking_ids">
                 <el-tooltip class="item" effect="dark" content="Click me to print label" placement="bottom">
                   <el-button :type="(each_tracking_id.track_id_type == 'OUT')? 'success': 'danger'" style="margin-right: 10px;" @click="printTrackingID(each_tracking_id.tracking_id)">({{each_tracking_id.track_id_type}}) {{each_tracking_id.tracking_id}}</el-button>
                 </el-tooltip>
@@ -279,7 +282,7 @@
             <hr/>
             <div v-if="this.selectedRow.tracking_ids && this.selectedRow.tracking_ids.length > 0">
               <h3>Tracking ID</h3>
-              <el-button-group v-for="each_tracking_id in this.selectedRow.tracking_ids">
+              <el-button-group :key="each_tracking_id" v-for="each_tracking_id in this.selectedRow.tracking_ids">
                 <el-tooltip class="item" effect="dark" content="Click me to see where the package is!" placement="bottom">
                   <el-button :type="(each_tracking_id.track_id_type == 'OUT')? 'success': 'danger'" style="margin-right: 10px;" @click="checkTrackingID(each_tracking_id.tracking_id)">({{each_tracking_id.track_id_type}}) {{each_tracking_id.tracking_id}}</el-button>
                 </el-tooltip>

@@ -92,27 +92,6 @@
                 </div>
               </div>
             </div>
-            <!-- <el-checkbox style="margin-bottom: 1rem;" v-model="client_order.isStandingOrder">This is a standing order.</el-checkbox> -->
-            <!-- <hr/>
-            <el-form :inline="true" label-position="top" v-if="client_order.isStandardingOrder">
-              <el-form-item label="Starting Date">
-                <el-date-picker
-                  type="date"
-                  v-model="standingOrderStartingDate"
-                  placeholder="Pick a day">
-                </el-date-picker>
-              </el-form-item>
-              <el-form-item label="Time Period">
-                <el-select v-model="standOrderPeriod" placeholder="Select">
-                  <el-option
-                    v-for="option in standOrderPeriodOptions"
-                    :label="option.label"
-                    :value="option.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-form>
-            <hr/> -->
             <el-button type="danger" :disabled="!isValidClientOrder" @click="submitClientOrder">Place Client Order</el-button>
           </div>
           <div class="col-md-3 col-sm-4 col-xm-6">
@@ -232,7 +211,8 @@
                   <el-option
                     v-for="each_option in shipping_options"
                     :label="each_option.label"
-                    :value="each_option.value">
+                    :value="each_option.value"
+                    :key="each_option.label">
                   </el-option>
                 </el-select>
               </div>
@@ -276,13 +256,15 @@
                       <el-option
                         v-for="patient_state in States"
                         :label="patient_state.name"
-                        :value="patient_state.abbreviation">
+                        :value="patient_state.abbreviation"
+                        :key="patient_state.abbreviation">
                       </el-option>
                     </el-select>
                   </el-form-item>
                   <el-form-item label="Zip Code">
                     <el-input placeholder="Zip Code" v-model="patient_order.patient_zipcode"></el-input>
                   </el-form-item>
+                </el-form>
               </div>
             </div>
             <el-button type="danger" :disabled="!isValidPatientOrder" @click="submitPatientOrder">Place Patient Order</el-button>
@@ -363,9 +345,11 @@
                   @select="handleSelect"
                   >
                   <el-option-group
+                    :key="group.label"
                     v-for="group in ph_items"
                     :label="group.label">
                     <el-option
+                      :key="item.value"
                       v-for="item in group.options"
                       :value="item.value">
                     </el-option>
@@ -410,6 +394,7 @@
               <div class="panel-body">
                 <el-select placeholder="Select" v-model="patient_order.shipping_method">
                   <el-option
+                    :key="each_option.value"
                     v-for="each_option in shipping_options"
                     :label="each_option.label"
                     :value="each_option.value">
