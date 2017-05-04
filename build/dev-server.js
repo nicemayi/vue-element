@@ -67,7 +67,8 @@ app.use(proxyMiddleware('/validate-user/', {target: 'http://localhost:5000'}))
 app.use(proxyMiddleware('/place-client-order-inventory/', {target: 'http://localhost:5000'}))
 app.use(proxyMiddleware('/place-client-standing-order/', {target: 'http://localhost:5000'}))
 app.use(proxyMiddleware('/receive-unknown-kit/', {target: 'http://localhost:5000'}))
-app.use(proxyMiddleware('/logout-from-issue/', {target: 'http://localhost:5000'}))
+app.use(proxyMiddleware('/logout-from-issue/', {target: 'http://localhost:5000'}));
+app.use(proxyMiddleware('/get-ph-items/', {target: 'http://localhost:5000'}))
 // app.use(proxyMiddleware('/', {target: 'http://localhost:5000'}))
 
 // handle fallback for HTML5 history API

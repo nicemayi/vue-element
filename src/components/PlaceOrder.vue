@@ -12,7 +12,7 @@
         <div class="row row-eq-height">
           <div class="col-md-3 col-sm-4 col-xm-6">
             <div class="panel panel-danger">
-              <div class="panel-heading">Client Information</div>
+              <div class="panel-heading">Place an order</div>
               <div class="panel-body">
                 <div>
                   <el-autocomplete
@@ -23,9 +23,8 @@
                     :autofocus="true"
                     placeholder="You can search for ID number or name..."
                     @select="handleSelectClient"
-                    style="width: 100%;">
+                    style="width: 100%; margin-bottom: 0.5rem;">
                   </el-autocomplete>
-                  <br>
                 </div>
                 <table class="table table-hover" v-if="clientCurrentStatus.client_id">
                   <tbody>
@@ -77,7 +76,12 @@
                     </tr>
                   </tbody>
                 </table>
-                <div v-if="!sameShippingAddress">
+              </div>
+            </div>
+            <div class="panel panel-danger" v-if="!sameShippingAddress">
+              <div class="panel-heading">Kit Return From</div>
+              <div class="panel-body">
+                <div>
                   <el-autocomplete
                     v-model="searchForShippingAddress"
                     :fetch-suggestions="querySearchClient"
@@ -85,11 +89,52 @@
                     :trigger-on-focus="false"
                     :autofocus="true"
                     placeholder="You can search for ID number or name..."
-                    @select="handleSelectClient"
-                    style="width: 100%;">
-                  </el-autocomplete>
-                  <br>
+                    @select="handleSelectClientShipping"
+                    style="width: 100%; margin-bottom: 0.5rem;">
+                  </el-autocomplete>                 
                 </div>
+                <table class="table table-hover" v-if="clientShippingStatus.client_id">
+                  <tbody>
+                    <tr>
+                      <td><b>ID</b></td>
+                      <td>{{clientShippingStatus.client_id}}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Name</b></td>
+                      <td>{{clientShippingStatus.client_name}}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Practice Name</b></td>
+                      <td>{{clientShippingStatus.client_practice_name}}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Type</b></td>
+                      <td>{{clientShippingStatus.client_type}}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Street</b></td>
+                      <td>{{clientShippingStatus.client_street}}</td>
+                    </tr>
+                    <tr>
+                      <td><b>City</b></td>
+                      <td>{{clientShippingStatus.client_city}}</td>
+                    </tr>
+                    <tr>
+                      <td><b>State</b></td>
+                      <td>
+                        {{clientShippingStatus.client_state}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><b>Zip Code</b></td>
+                      <td>{{clientShippingStatus.client_zipcode}}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Last PO Time</b></td>
+                      <td>{{clientShippingStatus.last_update_time}}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
             <el-button type="danger" :disabled="!isValidClientOrder" @click="submitClientOrder">Place Client Order</el-button>
@@ -163,6 +208,7 @@
               <div class="panel-heading">Phlebotomy Supplies/Req. Forms</div>
               <div class="panel-body">
                 <el-autocomplete
+                  style="margin-bottom: 1.5rem;"
                   :fetch-suggestions="querySearch"
                   placeholder="search..."
                   size="large"
@@ -421,12 +467,13 @@
 </template>
 
 <script>
-  var Vue = require('vue');
-  import States from '../USA_states'
+  import States from '../USA_states';
+  const Vue = require('vue');
+
   Vue.component('client-id', {
     functional: true,
     render: function (h, ctx){
-      var item = ctx.props.item;
+      const item = ctx.props.item;
       return h('li', ctx.data, [
         h('h4', { attrs: { class: 'name' } }, [item.client_practice_name]),
         h('h5', { attrs: { class: 'name' } }, [item.client_name]),
@@ -475,8 +522,6 @@
           return false;
         }
         let cond_patient_order = (this.patient_order.ReBox_ALL + this.patient_order.ReBox_Stand + this.patient_order.ReBox_SST_EDTA + this.patient_order.ReBox_SST + this.patient_order.ReBox_ALL_HA + this.patient_order.regular_box + this.patient_order.big_box + this.patient_order.Transfer_Tube_Pack + this.patient_order.Plasma_Tube_Pack + this.patient_order.Urine_Tube_Pack + this.patient_order.Serum_Tube_Pack + this.patient_order.ESR_Tube_Pack + this.patient_order.EDTA_Tube_Pack + this.patient_order.Bags_Pack + this.patient_select_ph_item_arr.length) == 0;
-        // console.log("this.patient_select_ph_item_arr.length: ", this.patient_select_ph_item_arr.length);
-        // console.log((this.patient_order.ReBox_ALL + this.patient_order.ReBox_Stand + this.patient_order.ReBox_SST_EDTA + this.patient_order.ReBox_SST + this.patient_order.ReBox_ALL_HA + this.patient_order.regular_box + this.patient_order.big_box + this.patient_order.Transfer_Tube_Pack + this.patient_order.Plasma_Tube_Pack + this.patient_order.Urine_Tube_Pack + this.patient_order.Serum_Tube_Pack + this.patient_order.ESR_Tube_Pack + this.patient_order.EDTA_Tube_Pack + this.patient_order.Bags_Pack + this.patient_select_ph_item_arr.length));
 
         if (cond_patient_order) {
           return false;
@@ -519,10 +564,19 @@
           "client_state": "",
           "client_zipcode": ""
         },
+        clientShippingStatus: {
+          "client_id": '',
+          "client_name": '',
+          "client_practice_name": '',
+          "last_update_time": '',
+          "client_type": '',
+          "client_street": "",
+          "client_city": "",
+          "client_state": "",
+          "client_zipcode": ""
+        },
         client_order: {
-          isStandingOrder: false,
           operator: this.current_loggin_user,
-          client_id: '',
           ReBox_ALL: 0,
           ReBox_Stand: 0,
           ReBox_SST_EDTA: 0,
@@ -538,7 +592,7 @@
           EDTA_Tube_Pack: 0,
           Bags_Pack: 0,
           phlebotomy_supplies: {},
-          shipping_method: "",
+          shipping_method: '',
           comments: ''
         },
         client_select_ph_item: '',
@@ -601,55 +655,14 @@
           value: 'Priority Overnight',
           label: 'Priority Overnight'
         }],
-        ph_items: [
-          {
-            label: "Regular Items",
-            options: [
-              { "value": "VA. requisition form"},
-              { "value": "VA. requisition form Carbon"},
-              { "value": "VG. requisition form"},
-              { "value": "VW. requisition form"},
-              { "value": "Butterfly Needles w/ regular hubs"},
-              { "value": "Straight Needles w/ safety hubs"},
-              { "value": "Tourniquets"},
-              { "value": "Coban wrap"},
-              { "value": "Medical tape"},
-              { "value": "Gauze"},
-              { "value": "Alcohol prep"},
-              { "value": "Bandages"},
-              { "value": "Sharps container"},
-              { "value": "Tube rack"},
-              { "value": "Pipettes"},
-              { "value": "Urine cups"},
-              { "value": "Patient kit ins (patient/phleb instructions, specimen handling)"},
-              { "value": "Wheat Zoomer Instructions"},
-              { "value": "VA brochure" },
-              { "value": "Gut Pac brochure" },
-              { "value": "Wheat Zoomer brochure" },
-              { "value": "Patient connection flyer" },
-              { "value": "Cardiax brochure" },
-              { "value": "VA folder" },
-              { "value": "VW folder" },
-            ]
-          }, {
-            label: "Wheat Zoomer Kits",
-            options: [
-              {"value": 'Cardiax Kit'},
-              {"value": 'Neurological Kit'},
-              {"value": 'Metabolic Weight Loss Kit'},
-              {"value": 'Food Sensitivity Kit'},
-              {"value": 'Gut-PAC Kit'},
-              {"value": 'Micronutrients Kit'},
-              {"value": 'Respiratory Virus Kit'},
-              {"value": 'Wheat Zoomer Kit'},
-              {"value": 'Buccal Swab Kit'}
-            ]
-          }
-        ],
+        ph_items: null
       };
     },
     beforeMount(){
-      // console.log("current_loggin_user: ", this.current_loggin_user);
+      this.$http.get('/get-ph-items/').then((res) => {
+        this.ph_items = JSON.parse(res.data);
+      });
+
       this.$http.get('/get-clients/').then(function(res){
         // console.log("res.data: ", res.data);
         this.searchSuggestions = JSON.parse(res.data);
@@ -658,42 +671,51 @@
         console.log(err)
       });
     },
+    watch: {
+      sameShippingAddress: function (newVal, oldVal) {
+        const _clientShippingStatus = {
+          "client_id": '',
+          "client_name": '',
+          "client_practice_name": '',
+          "last_update_time": '',
+          "client_type": '',
+          "client_street": "",
+          "client_city": "",
+          "client_state": "",
+          "client_zipcode": ""
+        };
+        this.clientShippingStatus = _clientShippingStatus;
+      }
+    },
     methods: {
+      handleSelectShippingMethod() {
+        console.log("handleSelectShippingMethod");
+      },
       submitClientOrder() {
-        let self = this;
+        const self = this;
         self.client_order.operator = this.current_loggin_user;
-        self.client_order.client_id = this.clientCurrentStatus.client_id
+        self.client_order.send_to = this.clientCurrentStatus;
+        if (!self.sameShippingAddress && self.client_order.send_to.client_id !== self.clientShippingStatus.client_id && self.clientShippingStatus.client_id !== '') {
+          self.client_order.return_from = this.clientShippingStatus;
+        } else {
+          self.client_order.return_from = this.clientCurrentStatus;
+        }
         self.client_order.phlebotomy_supplies = {}
-        for (let i=0; i < self.client_select_ph_item_arr.length; i++) {
+        for (let i = 0; i < self.client_select_ph_item_arr.length; i++) {
           self.client_order.phlebotomy_supplies[self.client_select_ph_item_arr[i].item_name] = self.client_select_ph_item_arr[i].item_number;
         }
-        if (self.client_order.isStandingOrder) {
-          // self.$http.post('/place-client-standing-order/', {order: self.client_order}).then(function(res) {
-          //   console.log(res);
-          //   self.$message({
-          //     message: "Successfully submit standing order!",
-          //     duration: 1000,
-          //     onClose: function() {
-          //       location.reload()
-          //     }
-          //   });
-          // })
-        } else {
-          // console.log("here");
-          self.$http.post('/place-client-order-inventory/', {order: self.client_order}).then((res) => {
-            self.$message({
-              message: "Successfully submit client order!",
-              duration: 1000,
-              onClose: function() {
-                location.reload();
-              }
-            });
+        self.$http.post('/place-client-order-inventory/', {order: self.client_order}).then((res) => {
+          self.$message({
+            message: "Successfully submit client order!",
+            duration: 1000,
+            onClose: function() {
+              location.reload();
+            }
           });
-        }
+        });
       },
       clearClientOrder() {
         this.client_order = {
-          client_id: '',
           operator: '',
           ReBox_ALL: 0,
           ReBox_Stand: 0,
@@ -826,14 +848,8 @@
         }
       },
       querySearch(queryString, cb) {
-        var ph_items = this.ph_items.filter((el) => {
-          return el.label === "Regular Items";
-        })[0].options;
-        var wz_items = this.ph_items.filter((el) => {
-          return el.label === "Wheat Zoomer Kits";
-        })[0].options;
-        var ph_items = ph_items.concat(wz_items);
-        var results = queryString ? ph_items.filter(this.createFilter(queryString)) : ph_items;
+        const ph_items = this.ph_items;
+        const results = queryString ? ph_items.filter(this.createFilter(queryString)) : ph_items;
         cb(results);
       },
       createFilter(queryString) {
@@ -885,10 +901,10 @@
       handleSelect(item) {
       },
       handleSelectClient(item) {
-        let self = this;
-        let client_id = item.client_id;
-        self.$http.post('/get-client-inventory/', {client_id: client_id}).then(function(res){
-          let data = JSON.parse(res.data);
+        const self = this;
+        const client_id = item.client_id;
+        self.$http.post('/get-client-inventory/', { client_id }).then((res) => {
+          const data = JSON.parse(res.data);
           self.clientCurrentStatus.client_id = data.client_id;
           self.clientCurrentStatus.last_update_time = data.Last_PO_time;
           self.clientCurrentStatus.client_name = data.client_name;
@@ -902,6 +918,22 @@
           console.log(err)
         });
       },
+      handleSelectClientShipping(item) {
+        const self = this;
+        const client_id = item.client_id;
+        self.$http.post('/get-client-inventory/', { client_id }).then((res) => {
+          const data = JSON.parse(res.data);
+          self.clientShippingStatus.client_id = data.client_id;
+          self.clientShippingStatus.last_update_time = data.Last_PO_time;
+          self.clientShippingStatus.client_name = data.client_name;
+          self.clientShippingStatus.client_type = data.client_type;
+          self.clientShippingStatus.client_practice_name = data.client_practice_name;
+          self.clientShippingStatus.client_street = data.customer_street;
+          self.clientShippingStatus.client_city = data.customer_city;
+          self.clientShippingStatus.client_state = data.customer_state;
+          self.clientShippingStatus.client_zipcode = data.customer_zipcode;
+        });
+      }
     },
   }
 </script>
